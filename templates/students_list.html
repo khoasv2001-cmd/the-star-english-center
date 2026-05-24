@@ -18,10 +18,35 @@
 </div>
 {% endif %}
 
+{% if has_role('admin','director','manager','teacher') %}
+<div class="panel">
+  <h2>🖨️ In danh sách học sinh</h2>
+  <div class="print-tools">
+    <a href="{{ url_for('students_print', scope='all') }}" target="_blank" class="btn btn-outline">In toàn bộ học sinh</a>
+    <form method="get" action="{{ url_for('students_print') }}" target="_blank" class="row-flex">
+      <input type="hidden" name="scope" value="class">
+      <select name="id" required>
+        <option value="">-- Chọn lớp --</option>
+        {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-outline">In theo lớp</button>
+    </form>
+    <form method="get" action="{{ url_for('students_print') }}" target="_blank" class="row-flex">
+      <input type="hidden" name="scope" value="teacher">
+      <select name="id" required>
+        <option value="">-- Chọn giáo viên --</option>
+        {% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-outline">In theo giáo viên</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
 <div class="panel">
   <div class="table-wrap">
   <table>
-    <thead><tr><th>Họ tên</th><th>Mã HS</th><th>Lớp</th><th>Ngày sinh</th><th>Phụ huynh</th><th></th></tr></thead>
+    <thead><tr><th>Họ tên</th><th>Mã HS</th><th>Lớp</th><th>Ngày sinh</th><th>Phụ huynh</th><th>SĐT phụ huynh</th><th></th></tr></thead>
     <tbody>
       {% for s in students %}
       <tr>
@@ -30,9 +55,10 @@
         <td>{{ s.class_name or '—' }}</td>
         <td>{{ s.dob or '—' }}</td>
         <td>{{ s.parent_name or '—' }}</td>
+        <td>{{ s.parent_phone or '—' }}</td>
         <td><a href="{{ url_for('student_detail', sid=s.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
       </tr>
-      {% else %}<tr><td colspan="6" class="empty">Chưa có học sinh.</td></tr>{% endfor %}
+      {% else %}<tr><td colspan="7" class="empty">Chưa có học sinh.</td></tr>{% endfor %}
     </tbody>
   </table>
   </div>

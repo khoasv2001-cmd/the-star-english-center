@@ -33,6 +33,120 @@ for d in (DATA_DIR, UPLOAD_DIR, SUBMISSION_DIR, DOC_DIR, ASSIGNMENT_FILE_DIR):
 ALLOWED_EXT = {'pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'zip', 'rar', 'txt', 'mp3', 'mp4'}
 MAX_UPLOAD_MB = 50
 
+# ---------- Link mạng xã hội (sửa 2 dòng dưới đây thành link thật của trung tâm) ----------
+ZALO_URL = 'https://zalo.me/0900000000'          # TODO: thay bằng link Zalo trung tâm
+FANPAGE_URL = 'https://facebook.com/thestar'      # TODO: thay bằng link Fanpage The Star
+CENTER_NAME = 'THE STAR ENGLISH CENTER'
+CENTER_SLOGAN = 'SPEAK UP - GROW UP!'
+
+# ---------- Ngân hàng câu đố "Nhìn hình đoán chữ" (emoji làm hình) ----------
+# level: easy / medium / hard ; answer: từ tiếng Anh ; hint: gợi ý tiếng Việt
+QUIZ_QUESTIONS = [
+    # ===== DỄ (easy) =====
+    {'emoji': '🍎', 'answer': 'apple', 'hint': 'Quả táo', 'level': 'easy'},
+    {'emoji': '🍌', 'answer': 'banana', 'hint': 'Quả chuối', 'level': 'easy'},
+    {'emoji': '🐱', 'answer': 'cat', 'hint': 'Con mèo', 'level': 'easy'},
+    {'emoji': '🐶', 'answer': 'dog', 'hint': 'Con chó', 'level': 'easy'},
+    {'emoji': '🐟', 'answer': 'fish', 'hint': 'Con cá', 'level': 'easy'},
+    {'emoji': '🐦', 'answer': 'bird', 'hint': 'Con chim', 'level': 'easy'},
+    {'emoji': '☀️', 'answer': 'sun', 'hint': 'Mặt trời', 'level': 'easy'},
+    {'emoji': '🌙', 'answer': 'moon', 'hint': 'Mặt trăng', 'level': 'easy'},
+    {'emoji': '⭐', 'answer': 'star', 'hint': 'Ngôi sao', 'level': 'easy'},
+    {'emoji': '🌧️', 'answer': 'rain', 'hint': 'Mưa', 'level': 'easy'},
+    {'emoji': '🌈', 'answer': 'rainbow', 'hint': 'Cầu vồng', 'level': 'easy'},
+    {'emoji': '🍊', 'answer': 'orange', 'hint': 'Quả cam', 'level': 'easy'},
+    {'emoji': '🍇', 'answer': 'grape', 'hint': 'Quả nho', 'level': 'easy'},
+    {'emoji': '🍓', 'answer': 'strawberry', 'hint': 'Quả dâu', 'level': 'easy'},
+    {'emoji': '🥚', 'answer': 'egg', 'hint': 'Quả trứng', 'level': 'easy'},
+    {'emoji': '🍞', 'answer': 'bread', 'hint': 'Bánh mì', 'level': 'easy'},
+    {'emoji': '🧀', 'answer': 'cheese', 'hint': 'Phô mai', 'level': 'easy'},
+    {'emoji': '🥛', 'answer': 'milk', 'hint': 'Sữa', 'level': 'easy'},
+    {'emoji': '☕', 'answer': 'coffee', 'hint': 'Cà phê', 'level': 'easy'},
+    {'emoji': '🍵', 'answer': 'tea', 'hint': 'Trà', 'level': 'easy'},
+    {'emoji': '🚗', 'answer': 'car', 'hint': 'Ô tô', 'level': 'easy'},
+    {'emoji': '🚌', 'answer': 'bus', 'hint': 'Xe buýt', 'level': 'easy'},
+    {'emoji': '🚲', 'answer': 'bike', 'hint': 'Xe đạp', 'level': 'easy'},
+    {'emoji': '✈️', 'answer': 'plane', 'hint': 'Máy bay', 'level': 'easy'},
+    {'emoji': '🚀', 'answer': 'rocket', 'hint': 'Tên lửa', 'level': 'easy'},
+    {'emoji': '🏠', 'answer': 'house', 'hint': 'Ngôi nhà', 'level': 'easy'},
+    {'emoji': '🌳', 'answer': 'tree', 'hint': 'Cái cây', 'level': 'easy'},
+    {'emoji': '🌸', 'answer': 'flower', 'hint': 'Bông hoa', 'level': 'easy'},
+    {'emoji': '🔥', 'answer': 'fire', 'hint': 'Lửa', 'level': 'easy'},
+    {'emoji': '💧', 'answer': 'water', 'hint': 'Nước', 'level': 'easy'},
+    {'emoji': '❄️', 'answer': 'snow', 'hint': 'Tuyết', 'level': 'easy'},
+    {'emoji': '🍦', 'answer': 'ice cream', 'hint': 'Kem', 'level': 'easy'},
+    {'emoji': '🎂', 'answer': 'cake', 'hint': 'Bánh kem', 'level': 'easy'},
+    {'emoji': '🍕', 'answer': 'pizza', 'hint': 'Bánh pizza', 'level': 'easy'},
+    {'emoji': '🐮', 'answer': 'cow', 'hint': 'Con bò', 'level': 'easy'},
+    {'emoji': '🐷', 'answer': 'pig', 'hint': 'Con heo', 'level': 'easy'},
+    {'emoji': '🐔', 'answer': 'chicken', 'hint': 'Con gà', 'level': 'easy'},
+    # ===== TRUNG BÌNH (medium) =====
+    {'emoji': '🦒', 'answer': 'giraffe', 'hint': 'Hươu cao cổ', 'level': 'medium'},
+    {'emoji': '🐘', 'answer': 'elephant', 'hint': 'Con voi', 'level': 'medium'},
+    {'emoji': '🦁', 'answer': 'lion', 'hint': 'Sư tử', 'level': 'medium'},
+    {'emoji': '🐯', 'answer': 'tiger', 'hint': 'Con hổ', 'level': 'medium'},
+    {'emoji': '🐻', 'answer': 'bear', 'hint': 'Con gấu', 'level': 'medium'},
+    {'emoji': '🐼', 'answer': 'panda', 'hint': 'Gấu trúc', 'level': 'medium'},
+    {'emoji': '🐨', 'answer': 'koala', 'hint': 'Gấu koala', 'level': 'medium'},
+    {'emoji': '🐸', 'answer': 'frog', 'hint': 'Con ếch', 'level': 'medium'},
+    {'emoji': '🦋', 'answer': 'butterfly', 'hint': 'Con bướm', 'level': 'medium'},
+    {'emoji': '🐝', 'answer': 'bee', 'hint': 'Con ong', 'level': 'medium'},
+    {'emoji': '🐍', 'answer': 'snake', 'hint': 'Con rắn', 'level': 'medium'},
+    {'emoji': '🐢', 'answer': 'turtle', 'hint': 'Con rùa', 'level': 'medium'},
+    {'emoji': '🦈', 'answer': 'shark', 'hint': 'Cá mập', 'level': 'medium'},
+    {'emoji': '🐙', 'answer': 'octopus', 'hint': 'Bạch tuộc', 'level': 'medium'},
+    {'emoji': '🦀', 'answer': 'crab', 'hint': 'Con cua', 'level': 'medium'},
+    {'emoji': '🍉', 'answer': 'watermelon', 'hint': 'Dưa hấu', 'level': 'medium'},
+    {'emoji': '🍍', 'answer': 'pineapple', 'hint': 'Quả dứa', 'level': 'medium'},
+    {'emoji': '🥕', 'answer': 'carrot', 'hint': 'Cà rốt', 'level': 'medium'},
+    {'emoji': '🌽', 'answer': 'corn', 'hint': 'Bắp ngô', 'level': 'medium'},
+    {'emoji': '🍄', 'answer': 'mushroom', 'hint': 'Cây nấm', 'level': 'medium'},
+    {'emoji': '🌻', 'answer': 'sunflower', 'hint': 'Hoa hướng dương', 'level': 'medium'},
+    {'emoji': '🎸', 'answer': 'guitar', 'hint': 'Đàn ghi-ta', 'level': 'medium'},
+    {'emoji': '🎹', 'answer': 'piano', 'hint': 'Đàn piano', 'level': 'medium'},
+    {'emoji': '🎺', 'answer': 'trumpet', 'hint': 'Kèn trumpet', 'level': 'medium'},
+    {'emoji': '🥁', 'answer': 'drum', 'hint': 'Cái trống', 'level': 'medium'},
+    {'emoji': '⚽', 'answer': 'football', 'hint': 'Bóng đá', 'level': 'medium'},
+    {'emoji': '🏀', 'answer': 'basketball', 'hint': 'Bóng rổ', 'level': 'medium'},
+    {'emoji': '🎾', 'answer': 'tennis', 'hint': 'Quần vợt', 'level': 'medium'},
+    {'emoji': '🏊', 'answer': 'swimming', 'hint': 'Bơi lội', 'level': 'medium'},
+    {'emoji': '🚁', 'answer': 'helicopter', 'hint': 'Trực thăng', 'level': 'medium'},
+    {'emoji': '⛵', 'answer': 'sailboat', 'hint': 'Thuyền buồm', 'level': 'medium'},
+    {'emoji': '🏰', 'answer': 'castle', 'hint': 'Lâu đài', 'level': 'medium'},
+    {'emoji': '🌋', 'answer': 'volcano', 'hint': 'Núi lửa', 'level': 'medium'},
+    {'emoji': '🗻', 'answer': 'mountain', 'hint': 'Ngọn núi', 'level': 'medium'},
+    # ===== KHÓ (hard) =====
+    {'emoji': '🔬', 'answer': 'microscope', 'hint': 'Kính hiển vi', 'level': 'hard'},
+    {'emoji': '🔭', 'answer': 'telescope', 'hint': 'Kính thiên văn', 'level': 'hard'},
+    {'emoji': '🧲', 'answer': 'magnet', 'hint': 'Nam châm', 'level': 'hard'},
+    {'emoji': '🦕', 'answer': 'dinosaur', 'hint': 'Khủng long', 'level': 'hard'},
+    {'emoji': '🐉', 'answer': 'dragon', 'hint': 'Con rồng', 'level': 'hard'},
+    {'emoji': '🦄', 'answer': 'unicorn', 'hint': 'Kỳ lân', 'level': 'hard'},
+    {'emoji': '🎻', 'answer': 'violin', 'hint': 'Đàn vĩ cầm', 'level': 'hard'},
+    {'emoji': '🎷', 'answer': 'saxophone', 'hint': 'Kèn saxophone', 'level': 'hard'},
+    {'emoji': '🏛️', 'answer': 'museum', 'hint': 'Bảo tàng', 'level': 'hard'},
+    {'emoji': '🌌', 'answer': 'galaxy', 'hint': 'Thiên hà', 'level': 'hard'},
+    {'emoji': '🪐', 'answer': 'planet', 'hint': 'Hành tinh', 'level': 'hard'},
+    {'emoji': '☄️', 'answer': 'comet', 'hint': 'Sao chổi', 'level': 'hard'},
+    {'emoji': '🩺', 'answer': 'stethoscope', 'hint': 'Ống nghe y tế', 'level': 'hard'},
+    {'emoji': '🧪', 'answer': 'laboratory', 'hint': 'Phòng thí nghiệm', 'level': 'hard'},
+    {'emoji': '🛰️', 'answer': 'satellite', 'hint': 'Vệ tinh', 'level': 'hard'},
+    {'emoji': '🧭', 'answer': 'compass', 'hint': 'La bàn', 'level': 'hard'},
+    {'emoji': '⚓', 'answer': 'anchor', 'hint': 'Mỏ neo', 'level': 'hard'},
+    {'emoji': '🏺', 'answer': 'vase', 'hint': 'Bình gốm', 'level': 'hard'},
+    {'emoji': '🔱', 'answer': 'trident', 'hint': 'Đinh ba', 'level': 'hard'},
+    {'emoji': '🧳', 'answer': 'luggage', 'hint': 'Hành lý', 'level': 'hard'},
+    {'emoji': '🪙', 'answer': 'coin', 'hint': 'Đồng xu', 'level': 'hard'},
+    {'emoji': '🦴', 'answer': 'skeleton', 'hint': 'Bộ xương', 'level': 'hard'},
+    {'emoji': '🫁', 'answer': 'lungs', 'hint': 'Lá phổi', 'level': 'hard'},
+    {'emoji': '🫀', 'answer': 'heart', 'hint': 'Trái tim', 'level': 'hard'},
+    {'emoji': '🦷', 'answer': 'tooth', 'hint': 'Cái răng', 'level': 'hard'},
+    {'emoji': '🧠', 'answer': 'brain', 'hint': 'Bộ não', 'level': 'hard'},
+    {'emoji': '🪃', 'answer': 'boomerang', 'hint': 'Boomerang', 'level': 'hard'},
+    {'emoji': '🪂', 'answer': 'parachute', 'hint': 'Dù nhảy', 'level': 'hard'},
+    {'emoji': '🧯', 'answer': 'extinguisher', 'hint': 'Bình chữa cháy', 'level': 'hard'},
+]
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'thestar-change-me-in-production')
 app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_MB * 1024 * 1024
@@ -215,6 +329,20 @@ def init_db():
     # Chuyển dữ liệu phụ huynh cũ (students.parent_id) sang bảng liên kết nhiều-nhiều
     conn.execute('''INSERT OR IGNORE INTO student_parents (student_id, parent_id)
         SELECT id, parent_id FROM students WHERE parent_id IS NOT NULL''')
+
+    # Migration: thêm cột phê duyệt cho phiếu học phí (nếu chưa có)
+    existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(tuition)").fetchall()]
+    for col, ddl in (
+        ('approved', 'ALTER TABLE tuition ADD COLUMN approved INTEGER NOT NULL DEFAULT 0'),
+        ('approved_by', 'ALTER TABLE tuition ADD COLUMN approved_by INTEGER'),
+        ('approved_at', 'ALTER TABLE tuition ADD COLUMN approved_at TEXT'),
+        ('created_by', 'ALTER TABLE tuition ADD COLUMN created_by INTEGER'),
+    ):
+        if col not in existing_cols:
+            conn.execute(ddl)
+    # Các phiếu cũ (đã tồn tại trước khi có tính năng duyệt) coi như đã được duyệt
+    if 'approved' not in existing_cols:
+        conn.execute('UPDATE tuition SET approved=1')
     conn.commit()
 
     # Tạo tài khoản admin mặc định nếu chưa có user nào
@@ -273,7 +401,9 @@ def inject_globals():
     return dict(
         ROLES=ROLES, ROLE_RANK=ROLE_RANK,
         ATTENDANCE_LABELS=ATTENDANCE_LABELS, TUITION_LABELS=TUITION_LABELS,
-        has_role=has_role, today=date.today().isoformat(), WEEKDAYS=WEEKDAYS
+        has_role=has_role, today=date.today().isoformat(), WEEKDAYS=WEEKDAYS,
+        ZALO_URL=ZALO_URL, FANPAGE_URL=FANPAGE_URL,
+        CENTER_NAME=CENTER_NAME, CENTER_SLOGAN=CENTER_SLOGAN
     )
 
 
@@ -470,6 +600,63 @@ def change_password():
 # ============================================================
 #  DASHBOARD / BÁO CÁO
 # ============================================================
+def _overview_stats(sids, cids, class_filter='', age_filter=''):
+    """Tổng quan học phí/doanh thu theo phân khúc lớp và độ tuổi.
+    sids/cids: phạm vi học sinh & lớp được phép xem (None = tất cả)."""
+    db = get_db()
+    # Lấy danh sách học sinh kèm học phí trong phạm vi cho phép
+    sql = '''SELECT s.id, s.dob, s.class_id, c.name class_name,
+        COALESCE((SELECT SUM(amount) FROM tuition t WHERE t.student_id=s.id AND t.approved=1),0) billed,
+        COALESCE((SELECT SUM(paid_amount) FROM tuition t WHERE t.student_id=s.id AND t.approved=1),0) paid
+        FROM students s LEFT JOIN classes c ON c.id=s.class_id WHERE s.active=1'''
+    params = []
+    if sids is not None:
+        if not sids:
+            return dict(total_students=0, total_classes=len(cids or []), total_teachers=0,
+                        tuition_total=0, tuition_paid=0, tuition_due=0,
+                        by_class=[], by_age=[], classes=[],
+                        class_filter=class_filter, age_filter=age_filter, age_groups=[])
+        sql += ' AND s.id IN (%s)' % ','.join('?' * len(sids))
+        params += list(sids)
+    rows = db.execute(sql, params).fetchall()
+
+    by_class = {}
+    by_age = {}
+    total_students = 0
+    t_billed = t_paid = 0
+    for r in rows:
+        grp = _age_group(_age_from_dob(r['dob']))
+        # Áp dụng bộ lọc phân khúc
+        if class_filter and str(r['class_id']) != class_filter:
+            continue
+        if age_filter and grp != age_filter:
+            continue
+        total_students += 1
+        t_billed += r['billed']
+        t_paid += r['paid']
+        cn = r['class_name'] or 'Chưa xếp lớp'
+        c = by_class.setdefault(cn, {'name': cn, 'count': 0, 'billed': 0, 'paid': 0})
+        c['count'] += 1; c['billed'] += r['billed']; c['paid'] += r['paid']
+        a = by_age.setdefault(grp, {'name': grp, 'count': 0, 'billed': 0, 'paid': 0})
+        a['count'] += 1; a['billed'] += r['billed']; a['paid'] += r['paid']
+
+    age_order = ['Mầm non (≤5)', 'Tiểu học (6-10)', 'THCS (11-15)', 'THPT+ (16+)', 'Chưa rõ tuổi']
+    by_age_list = [by_age[k] for k in age_order if k in by_age]
+    by_class_list = sorted(by_class.values(), key=lambda x: x['name'])
+
+    total_classes = len(cids) if cids is not None else \
+        db.execute('SELECT COUNT(*) c FROM classes WHERE active=1').fetchone()['c']
+    total_teachers = db.execute("SELECT COUNT(*) c FROM users WHERE role='teacher' AND active=1").fetchone()['c']
+
+    return dict(
+        total_students=total_students, total_classes=total_classes, total_teachers=total_teachers,
+        tuition_total=t_billed, tuition_paid=t_paid, tuition_due=t_billed - t_paid,
+        by_class=by_class_list, by_age=by_age_list,
+        class_filter=class_filter, age_filter=age_filter,
+        age_groups=[g for g in age_order if g != 'Chưa rõ tuổi'],
+    )
+
+
 @app.route('/')
 @login_required
 def dashboard():
@@ -477,22 +664,39 @@ def dashboard():
     role = current_user.role
     stats = {}
 
-    if role in ('admin', 'director'):
-        stats['total_students'] = db.execute('SELECT COUNT(*) c FROM students WHERE active=1').fetchone()['c']
-        stats['total_classes'] = db.execute('SELECT COUNT(*) c FROM classes WHERE active=1').fetchone()['c']
-        stats['total_teachers'] = db.execute("SELECT COUNT(*) c FROM users WHERE role='teacher' AND active=1").fetchone()['c']
-        tu = db.execute("SELECT COALESCE(SUM(amount),0) a, COALESCE(SUM(paid_amount),0) p FROM tuition").fetchone()
-        stats['tuition_total'] = tu['a']
-        stats['tuition_paid'] = tu['p']
-        stats['tuition_due'] = tu['a'] - tu['p']
-        stats['classes'] = db.execute('''
-            SELECT c.*, u.full_name teacher_name,
-              (SELECT COUNT(*) FROM students s WHERE s.class_id=c.id AND s.active=1) student_count
-            FROM classes c LEFT JOIN users u ON u.id=c.teacher_id
-            WHERE c.active=1 ORDER BY c.name''').fetchall()
-        return render_template('dashboard_director.html', stats=stats)
+    # Tổng quan có học phí & doanh thu phân khúc: chỉ Giám đốc/Admin và Quản lý
+    if role in ('admin', 'director', 'manager'):
+        class_filter = request.args.get('class_id', '')
+        age_filter = request.args.get('age_group', '')
+        if role in ('admin', 'director'):
+            sids = None  # tất cả học sinh
+            cids = None
+            stats = _overview_stats(sids, cids, class_filter, age_filter)
+            stats['classes'] = db.execute('''
+                SELECT c.*, u.full_name teacher_name,
+                  (SELECT COUNT(*) FROM students s WHERE s.class_id=c.id AND s.active=1) student_count
+                FROM classes c LEFT JOIN users u ON u.id=c.teacher_id
+                WHERE c.active=1 ORDER BY c.name''').fetchall()
+            class_choices = db.execute('SELECT id, name FROM classes WHERE active=1 ORDER BY name').fetchall()
+        else:  # manager — chỉ phạm vi lớp mình phụ trách
+            cids = visible_class_ids()
+            sids = visible_student_ids()
+            stats = _overview_stats(sids, cids, class_filter, age_filter)
+            if cids:
+                qc = '''SELECT c.*, u.full_name teacher_name,
+                    (SELECT COUNT(*) FROM students s WHERE s.class_id=c.id AND s.active=1) student_count
+                    FROM classes c LEFT JOIN users u ON u.id=c.teacher_id
+                    WHERE c.id IN (%s) ORDER BY c.name''' % ','.join('?' * len(cids))
+                stats['classes'] = db.execute(qc, cids).fetchall()
+                class_choices = db.execute(
+                    'SELECT id, name FROM classes WHERE id IN (%s) ORDER BY name' % ','.join('?' * len(cids)),
+                    cids).fetchall()
+            else:
+                stats['classes'] = []
+                class_choices = []
+        return render_template('dashboard_director.html', stats=stats, class_choices=class_choices)
 
-    if role in ('manager', 'teacher'):
+    if role == 'teacher':
         cids = visible_class_ids()
         sids = visible_student_ids()
         stats['my_classes'] = len(cids)
@@ -534,12 +738,25 @@ def dashboard():
 # ============================================================
 #  QUẢN LÝ NGƯỜI DÙNG (admin)
 # ============================================================
+# Vai trò mà quản lý lớp được phép tạo (admin tạo được tất cả)
+MANAGER_CREATABLE_ROLES = ('student', 'parent')
+
+
 @app.route('/nguoi-dung')
-@roles_required('admin')
+@roles_required('admin', 'manager')
 def users_list():
     db = get_db()
     role_filter = request.args.get('role', '')
-    if role_filter:
+    # Quản lý lớp chỉ thấy tài khoản học sinh & phụ huynh
+    if has_role('manager'):
+        if role_filter not in MANAGER_CREATABLE_ROLES:
+            role_filter = ''
+        if role_filter:
+            rows = db.execute('SELECT * FROM users WHERE role=? ORDER BY full_name', (role_filter,)).fetchall()
+        else:
+            rows = db.execute(
+                "SELECT * FROM users WHERE role IN ('student','parent') ORDER BY role, full_name").fetchall()
+    elif role_filter:
         rows = db.execute('SELECT * FROM users WHERE role=? ORDER BY full_name', (role_filter,)).fetchall()
     else:
         rows = db.execute('SELECT * FROM users ORDER BY role, full_name').fetchall()
@@ -547,13 +764,16 @@ def users_list():
 
 
 @app.route('/nguoi-dung/them', methods=['GET', 'POST'])
-@roles_required('admin')
+@roles_required('admin', 'manager')
 def user_create():
     db = get_db()
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         role = request.form.get('role', 'student')
+        # Quản lý lớp chỉ được tạo tài khoản học sinh / phụ huynh
+        if has_role('manager') and role not in MANAGER_CREATABLE_ROLES:
+            abort(403)
         if not username or not password:
             flash('Cần nhập tên đăng nhập và mật khẩu.', 'danger')
         elif db.execute('SELECT 1 FROM users WHERE username=?', (username,)).fetchone():
@@ -628,6 +848,44 @@ def _build_schedule():
     return ' · '.join(parts)
 
 
+def _build_dob():
+    """Ghép ngày sinh từ 3 ô chọn ngày / tháng / năm thành chuỗi YYYY-MM-DD."""
+    d = request.form.get('dob_day', '')
+    m = request.form.get('dob_month', '')
+    y = request.form.get('dob_year', '')
+    if d and m and y:
+        try:
+            return date(int(y), int(m), int(d)).isoformat()
+        except ValueError:
+            return ''
+    return ''
+
+
+def _age_from_dob(dob):
+    """Tính tuổi (số nguyên) từ chuỗi ngày sinh YYYY-MM-DD. Trả về None nếu không xác định."""
+    if not dob:
+        return None
+    try:
+        b = datetime.strptime(dob[:10], '%Y-%m-%d').date()
+    except ValueError:
+        return None
+    t = date.today()
+    return t.year - b.year - ((t.month, t.day) < (b.month, b.day))
+
+
+def _age_group(age):
+    """Phân nhóm độ tuổi để theo dõi doanh thu từng phân khúc."""
+    if age is None:
+        return 'Chưa rõ tuổi'
+    if age <= 5:
+        return 'Mầm non (≤5)'
+    if age <= 10:
+        return 'Tiểu học (6-10)'
+    if age <= 15:
+        return 'THCS (11-15)'
+    return 'THPT+ (16+)'
+
+
 @app.route('/lop-hoc/them', methods=['GET', 'POST'])
 @roles_required('admin', 'director', 'manager')
 def class_create():
@@ -697,7 +955,7 @@ def students_list():
     if not sids:
         return render_template('students_list.html', students=[])
     class_filter = request.args.get('class_id', '')
-    q = '''SELECT s.*, c.name class_name, p.full_name parent_name FROM students s
+    q = '''SELECT s.*, c.name class_name, p.full_name parent_name, p.phone parent_phone FROM students s
         LEFT JOIN classes c ON c.id=s.class_id
         LEFT JOIN users p ON p.id=s.parent_id
         WHERE s.id IN (%s)''' % ','.join('?' * len(sids))
@@ -708,7 +966,43 @@ def students_list():
     q += ' ORDER BY s.full_name'
     rows = db.execute(q, params).fetchall()
     classes = db.execute('SELECT id, name FROM classes WHERE active=1 ORDER BY name').fetchall()
-    return render_template('students_list.html', students=rows, classes=classes, class_filter=class_filter)
+    teachers = db.execute("SELECT id, full_name FROM users WHERE role='teacher' AND active=1 ORDER BY full_name").fetchall()
+    return render_template('students_list.html', students=rows, classes=classes,
+                           class_filter=class_filter, teachers=teachers)
+
+
+@app.route('/hoc-sinh/in')
+@roles_required('admin', 'director', 'manager', 'teacher')
+def students_print():
+    """In danh sách học sinh: toàn bộ / theo lớp / theo giáo viên."""
+    db = get_db()
+    scope = request.args.get('scope', 'all')
+    sids = visible_student_ids()
+    if not sids:
+        return render_template('students_print.html', students=[], scope=scope, subtitle='Danh sách trống')
+    base = '''SELECT s.*, c.name class_name, t.full_name teacher_name,
+        p.full_name parent_name, p.phone parent_phone FROM students s
+        LEFT JOIN classes c ON c.id=s.class_id
+        LEFT JOIN users t ON t.id=c.teacher_id
+        LEFT JOIN users p ON p.id=s.parent_id
+        WHERE s.active=1 AND s.id IN (%s)''' % ','.join('?' * len(sids))
+    params = list(sids)
+    subtitle = 'Toàn bộ học sinh'
+    if scope == 'class':
+        cid = request.args.get('id', type=int)
+        base += ' AND s.class_id=?'
+        params.append(cid)
+        c = db.execute('SELECT name FROM classes WHERE id=?', (cid,)).fetchone()
+        subtitle = 'Lớp: ' + (c['name'] if c else '—')
+    elif scope == 'teacher':
+        tid = request.args.get('id', type=int)
+        base += ' AND c.teacher_id=?'
+        params.append(tid)
+        t = db.execute('SELECT full_name FROM users WHERE id=?', (tid,)).fetchone()
+        subtitle = 'Giáo viên: ' + (t['full_name'] if t else '—')
+    base += ' ORDER BY c.name, s.full_name'
+    rows = db.execute(base, params).fetchall()
+    return render_template('students_print.html', students=rows, scope=scope, subtitle=subtitle)
 
 
 @app.route('/hoc-sinh/them', methods=['GET', 'POST'])
@@ -719,7 +1013,7 @@ def student_create():
         cur = db.execute('''INSERT INTO students
             (code, full_name, dob, gender, phone, address, class_id, parent_id, student_user_id, monthly_fee, note, created_at)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)''',
-            (request.form.get('code'), request.form.get('full_name'), request.form.get('dob'),
+            (request.form.get('code'), request.form.get('full_name'), _build_dob(),
              request.form.get('gender'), request.form.get('phone'), request.form.get('address'),
              request.form.get('class_id') or None, None,
              request.form.get('student_user_id') or None,
@@ -749,7 +1043,7 @@ def student_edit(sid):
     if request.method == 'POST':
         db.execute('''UPDATE students SET code=?, full_name=?, dob=?, gender=?, phone=?, address=?,
             class_id=?, student_user_id=?, monthly_fee=?, note=?, active=? WHERE id=?''',
-            (request.form.get('code'), request.form.get('full_name'), request.form.get('dob'),
+            (request.form.get('code'), request.form.get('full_name'), _build_dob(),
              request.form.get('gender'), request.form.get('phone'), request.form.get('address'),
              request.form.get('class_id') or None,
              request.form.get('student_user_id') or None, float(request.form.get('monthly_fee') or 0),
@@ -964,6 +1258,15 @@ def assignment_file_download(filename):
     return send_from_directory(ASSIGNMENT_FILE_DIR, filename, as_attachment=True)
 
 
+# ============================================================
+#  MINI GAME: NHÌN HÌNH ĐOÁN CHỮ
+# ============================================================
+@app.route('/tro-choi')
+@login_required
+def quiz_game():
+    return render_template('quiz_game.html', questions=QUIZ_QUESTIONS)
+
+
 # ---------- PWA (cài app lên điện thoại) ----------
 @app.route('/manifest.json')
 def pwa_manifest():
@@ -1047,7 +1350,30 @@ def tuition_list():
     q += ' ORDER BY t.period DESC, s.full_name'
     rows = db.execute(q, params).fetchall()
     can_manage = has_role('admin', 'director', 'manager')
-    return render_template('tuition_list.html', rows=rows, period=period, can_manage=can_manage)
+    can_approve = has_role('admin', 'director')
+    pending_count = sum(1 for r in rows if not r['approved'])
+    return render_template('tuition_list.html', rows=rows, period=period,
+                           can_manage=can_manage, can_approve=can_approve, pending_count=pending_count)
+
+
+def _month_range(p_from, p_to):
+    """Danh sách các kỳ YYYY-MM từ p_from đến p_to (bao gồm 2 đầu)."""
+    try:
+        fy, fm = int(p_from[:4]), int(p_from[5:7])
+        ty, tm = int(p_to[:4]), int(p_to[5:7])
+    except (ValueError, IndexError):
+        return []
+    if (ty, tm) < (fy, fm):
+        fy, fm, ty, tm = ty, tm, fy, fm
+    out = []
+    y, m = fy, fm
+    while (y, m) <= (ty, tm) and len(out) <= 36:
+        out.append(f'{y:04d}-{m:02d}')
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+    return out
 
 
 @app.route('/hoc-phi/them', methods=['GET', 'POST'])
@@ -1055,7 +1381,11 @@ def tuition_list():
 def tuition_create():
     db = get_db()
     if request.method == 'POST':
-        period = request.form.get('period')
+        # Chọn 1 tháng hoặc theo kỳ (từ tháng - đến tháng)
+        if request.form.get('period_mode') == 'range':
+            periods = _month_range(request.form.get('period_from', ''), request.form.get('period_to', ''))
+        else:
+            periods = [request.form.get('period')] if request.form.get('period') else []
         target = request.form.get('target')  # 'class' hoặc 'student'
         amount_default = float(request.form.get('amount') or 0)
         due_date = request.form.get('due_date')
@@ -1065,20 +1395,69 @@ def tuition_create():
         else:
             students = db.execute('SELECT id, monthly_fee FROM students WHERE id=?',
                                   (request.form.get('student_id'),)).fetchall()
+        # Giám đốc/admin tạo thì duyệt luôn; quản lý lớp tạo thì chờ giám đốc duyệt
+        approved = 1 if has_role('admin', 'director') else 0
+        now = datetime.now().isoformat()
         count = 0
-        for s in students:
-            if db.execute('SELECT 1 FROM tuition WHERE student_id=? AND period=?', (s['id'], period)).fetchone():
-                continue
-            amt = amount_default if amount_default > 0 else (s['monthly_fee'] or 0)
-            db.execute('''INSERT INTO tuition (student_id, period, amount, paid_amount, due_date, status, created_at)
-                VALUES (?,?,?,0,?,'unpaid',?)''', (s['id'], period, amt, due_date, datetime.now().isoformat()))
-            count += 1
+        for period in periods:
+            for s in students:
+                if db.execute('SELECT 1 FROM tuition WHERE student_id=? AND period=?', (s['id'], period)).fetchone():
+                    continue
+                amt = amount_default if amount_default > 0 else (s['monthly_fee'] or 0)
+                db.execute('''INSERT INTO tuition
+                    (student_id, period, amount, paid_amount, due_date, status, created_at, created_by, approved)
+                    VALUES (?,?,?,0,?,'unpaid',?,?,?)''',
+                    (s['id'], period, amt, due_date, now, current_user.id, approved))
+                count += 1
         db.commit()
-        flash(f'Đã tạo {count} phiếu học phí cho kỳ {period}.', 'success')
-        return redirect(url_for('tuition_list', period=period))
+        if approved:
+            flash(f'Đã tạo {count} phiếu học phí.', 'success')
+        else:
+            flash(f'Đã tạo {count} phiếu học phí, đang chờ Giám đốc phê duyệt.', 'success')
+        return redirect(url_for('tuition_list'))
     classes = db.execute('SELECT id, name FROM classes WHERE active=1 ORDER BY name').fetchall()
     students = db.execute('SELECT id, full_name FROM students WHERE active=1 ORDER BY full_name').fetchall()
     return render_template('tuition_form.html', classes=classes, students=students)
+
+
+@app.route('/hoc-phi/<int:tid>/duyet', methods=['POST'])
+@roles_required('admin', 'director')
+def tuition_approve(tid):
+    db = get_db()
+    row = db.execute('SELECT id FROM tuition WHERE id=?', (tid,)).fetchone()
+    if not row:
+        abort(404)
+    db.execute('UPDATE tuition SET approved=1, approved_by=?, approved_at=? WHERE id=?',
+               (current_user.id, datetime.now().isoformat(), tid))
+    db.commit()
+    flash('Đã phê duyệt phiếu học phí.', 'success')
+    return redirect(request.referrer or url_for('tuition_list'))
+
+
+@app.route('/hoc-phi/duyet-tat-ca', methods=['POST'])
+@roles_required('admin', 'director')
+def tuition_approve_all():
+    db = get_db()
+    db.execute('UPDATE tuition SET approved=1, approved_by=?, approved_at=? WHERE approved=0',
+               (current_user.id, datetime.now().isoformat()))
+    db.commit()
+    flash('Đã phê duyệt tất cả phiếu đang chờ.', 'success')
+    return redirect(url_for('tuition_list'))
+
+
+@app.route('/hoc-phi/<int:tid>/in')
+@roles_required('admin', 'director', 'manager')
+def tuition_print(tid):
+    db = get_db()
+    row = db.execute('''SELECT t.*, s.full_name student_name, s.code student_code, s.dob,
+        c.name class_name, a.full_name approver_name FROM tuition t
+        JOIN students s ON s.id=t.student_id
+        LEFT JOIN classes c ON c.id=s.class_id
+        LEFT JOIN users a ON a.id=t.approved_by
+        WHERE t.id=?''', (tid,)).fetchone()
+    if not row:
+        abort(404)
+    return render_template('tuition_print.html', t=row)
 
 
 @app.route('/hoc-phi/<int:tid>/thu', methods=['POST'])
@@ -1088,6 +1467,9 @@ def tuition_pay(tid):
     row = db.execute('SELECT * FROM tuition WHERE id=?', (tid,)).fetchone()
     if not row:
         abort(404)
+    if not row['approved']:
+        flash('Phiếu chưa được Giám đốc phê duyệt, chưa thể thu tiền.', 'danger')
+        return redirect(request.referrer or url_for('tuition_list'))
     add = float(request.form.get('paid_amount') or 0)
     new_paid = (row['paid_amount'] or 0) + add
     status = recalc_tuition_status(row['amount'], new_paid)

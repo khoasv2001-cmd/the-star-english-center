@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>🎮 Nhìn hình đoán chữ tiếng Anh</h1></div>
+
+<div class="panel" id="setup">
+  <h2>Chọn độ khó</h2>
+  <p class="muted">Nhìn hình, gõ từ tiếng Anh đúng vào ô và bấm Kiểm tra. Cố gắng đạt điểm cao nhất nhé!</p>
+  <div class="level-pick">
+    <button class="btn btn-primary" onclick="startGame('easy')">😀 Dễ</button>
+    <button class="btn btn-primary" onclick="startGame('medium')">🙂 Trung bình</button>
+    <button class="btn btn-primary" onclick="startGame('hard')">🤔 Khó</button>
+  </div>
+</div>
+
+<div class="panel game-box" id="game" style="display:none">
+  <div class="game-top">
+    <span id="progress" class="tag tag-blue"></span>
+    <span id="score" class="tag tag-green"></span>
+  </div>
+  <div class="emoji-card" id="emoji"></div>
+  <p class="muted" id="hint" style="text-align:center"></p>
+  <div class="answer-row">
+    <input type="text" id="answer" placeholder="Gõ từ tiếng Anh..." autocomplete="off" autocapitalize="off">
+    <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">Kiểm tra</button>
+  </div>
+  <p class="feedback" id="feedback"></p>
+  <div class="game-actions">
+    <button class="btn" id="nextBtn" onclick="nextQuestion()" style="display:none">Câu tiếp →</button>
+    <button class="btn btn-outline" onclick="location.reload()">Đổi độ khó</button>
+  </div>
+</div>
+
+<div class="panel" id="result" style="display:none">
+  <h2 id="resultTitle"></h2>
+  <p id="resultText" style="font-size:18px"></p>
+  <button class="btn btn-primary" onclick="location.reload()">Chơi lại</button>
+</div>
+
+<style>
+  .level-pick{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .game-top{display:flex;justify-content:space-between;margin-bottom:10px}
+  .emoji-card{font-size:120px;text-align:center;background:var(--green-bg);border-radius:16px;padding:24px;margin:6px 0}
+  .answer-row{display:flex;gap:10px;margin-top:14px}
+  .answer-row input{flex:1;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:18px;text-transform:lowercase}
+  .answer-row input:focus{outline:none;border-color:var(--green)}
+  .feedback{text-align:center;font-size:17px;font-weight:700;min-height:26px;margin:12px 0 0}
+  .feedback.ok{color:var(--green-dark)}
+  .feedback.bad{color:var(--danger)}
+  .game-actions{display:flex;gap:10px;justify-content:center;margin-top:8px}
+</style>
+
+<script>
+  const ALL = {{ questions|tojson }};
+  let pool = [], idx = 0, score = 0, answered = false;
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+  function norm(s){ return (s||'').trim().toLowerCase().replace(/\s+/g,' '); }
+
+  function startGame(level){
+    pool = shuffle(ALL.filter(q => q.level === level));
+    idx = 0; score = 0;
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
+    showQuestion();
+  }
+
+  function showQuestion(){
+    answered = false;
+    const q = pool[idx];
+    document.getElementById('emoji').textContent = q.emoji;
+    document.getElementById('hint').textContent = 'Gợi ý: ' + q.hint;
+    document.getElementById('progress').textContent = 'Câu ' + (idx+1) + '/' + pool.length;
+    document.getElementById('score').textContent = 'Điểm: ' + score;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    const inp = document.getElementById('answer');
+    inp.value = ''; inp.disabled = false; inp.focus();
+    document.getElementById('checkBtn').style.display = 'inline-block';
+    document.getElementById('nextBtn').style.display = 'none';
+  }
+
+  function checkAnswer(){
+    if(answered) return;
+    const q = pool[idx];
+    const fb = document.getElementById('feedback');
+    if(norm(document.getElementById('answer').value) === norm(q.answer)){
+      score++;
+      fb.textContent = '✓ Chính xác! ' + q.answer.toUpperCase();
+      fb.className = 'feedback ok';
+    } else {
+      fb.textContent = '✗ Sai rồi. Đáp án: ' + q.answer.toUpperCase();
+      fb.className = 'feedback bad';
+    }
+    answered = true;
+    document.getElementById('answer').disabled = true;
+    document.getElementById('score').textContent = 'Điểm: ' + score;
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('nextBtn').focus();
+  }
+
+  function nextQuestion(){
+    idx++;
+    if(idx >= pool.length){ finish(); return; }
+    showQuestion();
+  }
+
+  function finish(){
+    document.getElementById('game').style.display = 'none';
+    const res = document.getElementById('result');
+    res.style.display = 'block';
+    document.getElementById('resultTitle').textContent = '🎉 Hoàn thành!';
+    document.getElementById('resultText').textContent =
+      'Bạn trả lời đúng ' + score + '/' + pool.length + ' câu.';
+  }
+
+  document.getElementById('answer').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); answered ? nextQuestion() : checkAnswer(); }
+  });
+</script>
+{% endblock %}

@@ -30,8 +30,14 @@ img{max-width:100%}
 
 /* ---------- LAYOUT ---------- */
 .layout{display:flex;min-height:100vh}
-.sidebar{width:240px;background:linear-gradient(180deg,var(--green) 0%,var(--green-dark) 100%);
-  color:#fff;flex-shrink:0;display:flex;flex-direction:column}
+.sidebar{width:260px;background:linear-gradient(180deg,var(--green) 0%,var(--green-dark) 100%);
+  color:#fff;flex-shrink:0;display:flex;flex-direction:column;
+  position:fixed;left:-280px;top:0;bottom:0;z-index:60;transition:left .22s ease;
+  overflow-y:auto;box-shadow:2px 0 16px rgba(0,0,0,.18)}
+.sidebar.open{left:0}
+.sidebar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55;
+  opacity:0;visibility:hidden;transition:.22s}
+.sidebar-backdrop.show{opacity:1;visibility:visible}
 .brand{padding:18px 16px;text-align:center;background:rgba(255,255,255,.95)}
 .brand img{max-height:60px}
 .menu{padding:12px 10px;display:flex;flex-direction:column;gap:3px}
@@ -45,7 +51,7 @@ img{max-width:100%}
 .main{flex:1;display:flex;flex-direction:column;min-width:0}
 .topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;
   padding:0 20px;gap:12px;position:sticky;top:0;z-index:20}
-.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer}
+.hamburger{display:block;background:none;border:none;font-size:24px;cursor:pointer;line-height:1}
 .spacer{flex:1}
 .user-box{display:flex;align-items:center;gap:10px;position:relative}
 .uname{font-weight:600;font-size:14px}
@@ -125,12 +131,28 @@ form.form-grid .full{grid-column:1/-1}
 .progress{height:8px;background:#eef1f5;border-radius:10px;overflow:hidden;min-width:80px}
 .progress > i{display:block;height:100%;background:var(--green)}
 
+/* ===== Nút Zalo / Fanpage trong menu ===== */
+.social-links{margin-top:auto;padding:14px 12px;display:flex;flex-direction:column;gap:8px;
+  border-top:1px solid rgba(255,255,255,.2)}
+.social-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  font-size:14px;font-weight:600;color:#fff;background:rgba(255,255,255,.14)}
+.social-btn:hover{background:rgba(255,255,255,.26);color:#fff}
+.social-ico{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;flex-shrink:0}
+.social-zalo .social-ico{background:#0068ff;color:#fff}
+.social-fb .social-ico{background:#1877f2;color:#fff}
+
 @media(max-width:820px){
-  .sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:50;transition:.2s;height:100%}
-  .sidebar.open{left:0}
-  .hamburger{display:block}
   form.form-grid{grid-template-columns:1fr}
 }
+
+/* ===== Công cụ in danh sách ===== */
+.print-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.print-tools .row-flex select{padding:8px 11px;border:1px solid var(--border);border-radius:9px;font-size:14px}
+
+/* ===== Chọn ngày sinh: ngày / tháng / năm ===== */
+.dob-pick{display:flex;gap:8px}
+.dob-pick select{flex:1;min-width:0}
 
 /* ===== Lịch học: chip chọn thứ ===== */
 .day-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}

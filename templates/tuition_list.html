@@ -2,8 +2,19 @@
 {% block content %}
 <div class="page-head">
   <h1>Học phí</h1>
-  {% if can_manage %}<a href="{{ url_for('tuition_create') }}" class="btn btn-primary">+ Tạo phiếu học phí</a>{% endif %}
+  <div class="row-flex">
+    {% if can_approve and pending_count %}
+    <form method="post" action="{{ url_for('tuition_approve_all') }}">
+      <button class="btn btn-primary">✓ Duyệt tất cả ({{ pending_count }})</button>
+    </form>
+    {% endif %}
+    {% if can_manage %}<a href="{{ url_for('tuition_create') }}" class="btn btn-primary">+ Tạo phiếu học phí</a>{% endif %}
+  </div>
 </div>
+
+{% if pending_count and not can_approve %}
+<div class="alert alert-warning">Có {{ pending_count }} phiếu đang chờ Giám đốc phê duyệt. Phiếu chưa duyệt chưa thể thu tiền.</div>
+{% endif %}
 
 <div class="toolbar">
   <form method="get" class="row-flex">
@@ -16,7 +27,7 @@
   <div class="table-wrap">
   <table>
     <thead><tr><th>Học sinh</th><th>Lớp</th><th>Kỳ</th><th>Số tiền</th><th>Đã đóng</th><th>Trạng thái</th>
-      {% if can_manage %}<th>Thu tiền</th>{% endif %}</tr></thead>
+      <th>Phê duyệt</th>{% if can_manage %}<th>Thu tiền</th>{% endif %}<th>In phiếu</th></tr></thead>
     <tbody>
       {% for t in rows %}
       <tr>
@@ -30,9 +41,18 @@
           {% elif t.status=='partial' %}<span class="tag tag-orange">Một phần</span>
           {% else %}<span class="tag tag-red">Chưa đóng</span>{% endif %}
         </td>
+        <td>
+          {% if t.approved %}<span class="tag tag-green">Đã duyệt</span>
+          {% elif can_approve %}
+          <form method="post" action="{{ url_for('tuition_approve', tid=t.id) }}" style="display:inline">
+            <button class="btn btn-sm btn-primary">Duyệt</button>
+          </form>
+          {% else %}<span class="tag tag-orange">Chờ duyệt</span>{% endif %}
+        </td>
         {% if can_manage %}
         <td>
-          {% if t.status!='paid' %}
+          {% if not t.approved %}<span class="muted">Chờ duyệt</span>
+          {% elif t.status!='paid' %}
           <form method="post" action="{{ url_for('tuition_pay', tid=t.id) }}" class="inline-form">
             <input type="number" name="paid_amount" placeholder="Số tiền" required>
             <button class="btn btn-sm btn-primary">Thu</button>
@@ -40,8 +60,9 @@
           {% else %}<span class="muted">—</span>{% endif %}
         </td>
         {% endif %}
+        <td><a href="{{ url_for('tuition_print', tid=t.id) }}" target="_blank" class="btn btn-sm btn-outline">In</a></td>
       </tr>
-      {% else %}<tr><td colspan="7" class="empty">Chưa có dữ liệu học phí.</td></tr>{% endfor %}
+      {% else %}<tr><td colspan="9" class="empty">Chưa có dữ liệu học phí.</td></tr>{% endfor %}
     </tbody>
   </table>
   </div>

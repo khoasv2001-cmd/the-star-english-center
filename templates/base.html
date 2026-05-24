@@ -60,17 +60,28 @@
         <span class="ico">💰</span> Học phí</a>
       {% endif %}
 
-      {% if has_role('admin') %}
+      <a href="{{ url_for('quiz_game') }}" class="{{ 'active' if request.endpoint=='quiz_game' }}">
+        <span class="ico">🎮</span> Trò chơi tiếng Anh</a>
+
+      {% if has_role('admin','manager') %}
       <div class="menu-sep">Quản trị</div>
       <a href="{{ url_for('users_list') }}" class="{{ 'active' if 'user' in request.endpoint }}">
-        <span class="ico">👤</span> Người dùng</a>
+        <span class="ico">👤</span> {{ 'Tài khoản HS/PH' if has_role('manager') else 'Người dùng' }}</a>
       {% endif %}
     </nav>
+
+    <div class="social-links">
+      <a href="{{ ZALO_URL }}" target="_blank" rel="noopener" class="social-btn social-zalo">
+        <span class="social-ico">Z</span> Zalo The Star</a>
+      <a href="{{ FANPAGE_URL }}" target="_blank" rel="noopener" class="social-btn social-fb">
+        <span class="social-ico">f</span> Fanpage The Star</a>
+    </div>
   </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
   <div class="main">
     <header class="topbar">
-      <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <div class="spacer"></div>
       <div class="user-box">
         <span class="role-badge role-{{ current_user.role }}">{{ current_user.role_label }}</span>
@@ -95,5 +106,24 @@
     </main>
   </div>
 </div>
+<script>
+  function openSidebar(){
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarBackdrop').classList.add('show');
+  }
+  function closeSidebar(){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarBackdrop').classList.remove('show');
+  }
+  function toggleSidebar(){
+    document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+  }
+  // Nhấn vào một mục trong menu thì tự đóng
+  document.querySelectorAll('#sidebar .menu a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+  // Nhấn phím Esc cũng đóng menu
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeSidebar(); });
+</script>
 </body>
 </html>

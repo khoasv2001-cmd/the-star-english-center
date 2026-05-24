@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Phiếu học phí - THE STAR</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:'Segoe UI',Arial,sans-serif;color:#1f2937;margin:0;padding:32px;max-width:760px;margin:0 auto}
+    .print-head{display:flex;align-items:center;gap:16px;border-bottom:3px solid #1aa637;padding-bottom:14px}
+    .print-head img{height:74px}
+    .center-name{font-size:22px;font-weight:800;color:#127a28;margin:0}
+    .slogan{color:#1aa637;font-weight:700;letter-spacing:1px;margin:2px 0 0;font-size:13px}
+    h2{text-align:center;margin:22px 0 2px;font-size:21px;letter-spacing:1px}
+    .period{text-align:center;color:#6b7280;margin:0 0 22px}
+    table.info{width:100%;border-collapse:collapse;font-size:15px;margin-bottom:8px}
+    table.info td{padding:9px 10px;border-bottom:1px solid #e3e8ee}
+    table.info td.k{color:#6b7280;width:42%}
+    table.info td.v{font-weight:600}
+    .total-row td{font-size:18px;font-weight:800;color:#127a28;border-bottom:2px solid #1aa637}
+    .approved{margin-top:14px;font-weight:700}
+    .approved.ok{color:#127a28}
+    .approved.no{color:#b45309}
+    .signs{display:flex;justify-content:space-between;margin-top:46px;text-align:center}
+    .signs .col{width:45%}
+    .signs .role{font-weight:700}
+    .signs .hint{color:#6b7280;font-size:12px;font-style:italic}
+    .signs .space{height:90px}
+    .toolbar-print{text-align:center;margin:26px 0}
+    .toolbar-print button{padding:10px 22px;font-size:15px;font-weight:700;background:#1aa637;color:#fff;border:none;border-radius:8px;cursor:pointer}
+    @media print{.toolbar-print{display:none}body{padding:0}}
+  </style>
+</head>
+<body>
+  <div class="print-head">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="THE STAR" onerror="this.style.display='none'">
+    <div>
+      <p class="center-name">{{ CENTER_NAME }}</p>
+      <p class="slogan">{{ CENTER_SLOGAN }}</p>
+    </div>
+  </div>
+
+  <h2>PHIẾU THU HỌC PHÍ</h2>
+  <p class="period">Kỳ: {{ t.period }}{% if t.due_date %} · Hạn đóng: {{ t.due_date }}{% endif %}</p>
+
+  <table class="info">
+    <tr><td class="k">Họ và tên học sinh</td><td class="v">{{ t.student_name }}</td></tr>
+    <tr><td class="k">Mã học sinh</td><td class="v">{{ t.student_code or '—' }}</td></tr>
+    <tr><td class="k">Lớp</td><td class="v">{{ t.class_name or '—' }}</td></tr>
+    <tr><td class="k">Ngày sinh</td><td class="v">{{ t.dob or '—' }}</td></tr>
+    <tr><td class="k">Số tiền học phí</td><td class="v">{{ '{:,.0f}'.format(t.amount) }} đ</td></tr>
+    <tr><td class="k">Đã đóng</td><td class="v">{{ '{:,.0f}'.format(t.paid_amount) }} đ</td></tr>
+    <tr class="total-row"><td>CÒN PHẢI ĐÓNG</td><td>{{ '{:,.0f}'.format(t.amount - t.paid_amount) }} đ</td></tr>
+  </table>
+
+  {% if t.approved %}
+  <p class="approved ok">✓ Đã được Giám đốc phê duyệt{% if t.approver_name %} ({{ t.approver_name }}){% endif %}{% if t.approved_at %} · {{ t.approved_at[:10] }}{% endif %}</p>
+  {% else %}
+  <p class="approved no">⏳ Phiếu chưa được Giám đốc phê duyệt</p>
+  {% endif %}
+
+  <div class="signs">
+    <div class="col">
+      <div class="role">NGƯỜI LẬP PHIẾU</div>
+      <div class="hint">(Ký, ghi rõ họ tên)</div>
+      <div class="space"></div>
+    </div>
+    <div class="col">
+      <div class="role">GIÁM ĐỐC TRUNG TÂM</div>
+      <div class="hint">(Ký tên, đóng dấu)</div>
+      <div class="space"></div>
+    </div>
+  </div>
+
+  <div class="toolbar-print">
+    <button onclick="window.print()">🖨️ In / Lưu PDF</button>
+  </div>
+</body>
+</html>

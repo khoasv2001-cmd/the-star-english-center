@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách học sinh - THE STAR</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:'Segoe UI',Arial,sans-serif;color:#1f2937;margin:0;padding:28px}
+    .print-head{display:flex;align-items:center;gap:16px;border-bottom:3px solid #1aa637;padding-bottom:14px}
+    .print-head img{height:70px}
+    .print-head .center-name{font-size:22px;font-weight:800;color:#127a28;margin:0}
+    .print-head .slogan{color:#1aa637;font-weight:700;letter-spacing:1px;margin:2px 0 0;font-size:13px}
+    h2{text-align:center;margin:18px 0 4px;font-size:18px}
+    .subtitle{text-align:center;color:#6b7280;margin:0 0 16px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{border:1px solid #cbd5e1;padding:7px 9px;text-align:left}
+    th{background:#e8f7ec;color:#127a28}
+    .meta{text-align:right;color:#6b7280;font-size:12px;margin-top:10px}
+    .toolbar-print{text-align:center;margin:18px 0}
+    .toolbar-print button{padding:10px 22px;font-size:15px;font-weight:700;background:#1aa637;color:#fff;border:none;border-radius:8px;cursor:pointer}
+    @media print{.toolbar-print{display:none}body{padding:0}}
+  </style>
+</head>
+<body>
+  <div class="print-head">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="THE STAR" onerror="this.style.display='none'">
+    <div>
+      <p class="center-name">{{ CENTER_NAME }}</p>
+      <p class="slogan">{{ CENTER_SLOGAN }}</p>
+    </div>
+  </div>
+
+  <h2>DANH SÁCH HỌC SINH</h2>
+  <p class="subtitle">{{ subtitle }}</p>
+
+  <table>
+    <thead><tr><th>STT</th><th>Họ tên</th><th>Mã HS</th><th>Lớp</th><th>Ngày sinh</th><th>Giáo viên</th><th>Phụ huynh</th><th>SĐT phụ huynh</th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ s.full_name }}</td>
+        <td>{{ s.code or '' }}</td>
+        <td>{{ s.class_name or '' }}</td>
+        <td>{{ s.dob or '' }}</td>
+        <td>{{ s.teacher_name or '' }}</td>
+        <td>{{ s.parent_name or '' }}</td>
+        <td>{{ s.parent_phone or '' }}</td>
+      </tr>
+      {% else %}<tr><td colspan="8" style="text-align:center;padding:20px">Không có học sinh.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+
+  <p class="meta">Tổng cộng: {{ students|length }} học sinh · In ngày {{ today }}</p>
+
+  <div class="toolbar-print">
+    <button onclick="window.print()">🖨️ In / Lưu PDF</button>
+  </div>
+</body>
+</html>

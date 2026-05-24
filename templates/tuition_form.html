@@ -3,7 +3,14 @@
 <div class="page-head"><h1>Tạo phiếu học phí</h1></div>
 <div class="panel" style="max-width:640px">
   <form method="post" class="form-grid">
-    <div><label>Kỳ (tháng)</label><input type="month" name="period" value="{{ today[:7] }}" required></div>
+    <div class="full"><label>Tạo theo</label>
+      <select name="period_mode" id="period_mode" onchange="toggleMode()">
+        <option value="single">1 tháng</option>
+        <option value="range">Theo kỳ (từ tháng — đến tháng)</option>
+      </select></div>
+    <div id="box-single"><label>Kỳ (tháng)</label><input type="month" name="period" value="{{ today[:7] }}"></div>
+    <div id="box-range-from" style="display:none"><label>Từ tháng</label><input type="month" name="period_from" value="{{ today[:7] }}"></div>
+    <div id="box-range-to" style="display:none"><label>Đến tháng</label><input type="month" name="period_to" value="{{ today[:7] }}"></div>
     <div><label>Hạn đóng</label><input type="date" name="due_date"></div>
     <div class="full"><label>Áp dụng cho</label>
       <select name="target" id="target" onchange="toggleTarget()">
@@ -29,6 +36,12 @@ function toggleTarget(){
   var t=document.getElementById('target').value;
   document.getElementById('box-class').style.display = t=='class'?'block':'none';
   document.getElementById('box-student').style.display = t=='student'?'block':'none';
+}
+function toggleMode(){
+  var m=document.getElementById('period_mode').value;
+  document.getElementById('box-single').style.display = m=='single'?'block':'none';
+  document.getElementById('box-range-from').style.display = m=='range'?'block':'none';
+  document.getElementById('box-range-to').style.display = m=='range'?'block':'none';
 }
 </script>
 {% endblock %}

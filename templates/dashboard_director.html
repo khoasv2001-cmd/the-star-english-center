@@ -2,17 +2,72 @@
 {% block content %}
 <div class="page-head"><h1>Tổng quan trung tâm</h1></div>
 
+<div class="toolbar">
+  <form method="get" class="row-flex" style="flex-wrap:wrap">
+    <select name="class_id" onchange="this.form.submit()">
+      <option value="">-- Tất cả lớp --</option>
+      {% for c in class_choices %}<option value="{{ c.id }}" {{ 'selected' if stats.class_filter==c.id|string }}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <select name="age_group" onchange="this.form.submit()">
+      <option value="">-- Tất cả độ tuổi --</option>
+      {% for g in stats.age_groups %}<option value="{{ g }}" {{ 'selected' if stats.age_filter==g }}>{{ g }}</option>{% endfor %}
+    </select>
+    {% if stats.class_filter or stats.age_filter %}<a href="{{ url_for('dashboard') }}" class="btn btn-sm">Xóa lọc</a>{% endif %}
+  </form>
+</div>
+
 <div class="cards">
-  <div class="card stat-card"><div class="label">Tổng học sinh</div><div class="value">{{ stats.total_students }}</div></div>
+  <div class="card stat-card"><div class="label">Học sinh{{ ' (đã lọc)' if stats.class_filter or stats.age_filter }}</div><div class="value">{{ stats.total_students }}</div></div>
   <div class="card stat-card"><div class="label">Số lớp đang mở</div><div class="value">{{ stats.total_classes }}</div></div>
-  <div class="card stat-card"><div class="label">Giáo viên</div><div class="value">{{ stats.total_teachers }}</div></div>
   <div class="card stat-card"><div class="label">Học phí đã thu</div>
     <div class="value">{{ '{:,.0f}'.format(stats.tuition_paid) }}</div>
     <div class="sub">Còn nợ: {{ '{:,.0f}'.format(stats.tuition_due) }} đ</div></div>
+  <div class="card stat-card"><div class="label">Tổng học phí (đã duyệt)</div>
+    <div class="value">{{ '{:,.0f}'.format(stats.tuition_total) }}</div></div>
 </div>
 
 <div class="panel">
-  <h2>Các lớp học</h2>
+  <h2>💰 Doanh thu theo lớp (phân khúc)</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Lớp</th><th>Sĩ số</th><th>Tổng học phí</th><th>Đã thu</th><th>Còn nợ</th></tr></thead>
+    <tbody>
+      {% for r in stats.by_class %}
+      <tr>
+        <td><strong>{{ r.name }}</strong></td>
+        <td>{{ r.count }}</td>
+        <td>{{ '{:,.0f}'.format(r.billed) }}</td>
+        <td>{{ '{:,.0f}'.format(r.paid) }}</td>
+        <td>{{ '{:,.0f}'.format(r.billed - r.paid) }}</td>
+      </tr>
+      {% else %}<tr><td colspan="5" class="empty">Chưa có dữ liệu.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>👶 Doanh thu theo độ tuổi (phân khúc)</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Nhóm tuổi</th><th>Số học sinh</th><th>Tổng học phí</th><th>Đã thu</th><th>Còn nợ</th></tr></thead>
+    <tbody>
+      {% for r in stats.by_age %}
+      <tr>
+        <td><strong>{{ r.name }}</strong></td>
+        <td>{{ r.count }}</td>
+        <td>{{ '{:,.0f}'.format(r.billed) }}</td>
+        <td>{{ '{:,.0f}'.format(r.paid) }}</td>
+        <td>{{ '{:,.0f}'.format(r.billed - r.paid) }}</td>
+      </tr>
+      {% else %}<tr><td colspan="5" class="empty">Chưa có dữ liệu.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>🏫 Các lớp học</h2>
   <div class="table-wrap">
   <table>
     <thead><tr><th>Lớp</th><th>Trình độ</th><th>Giáo viên</th><th>Lịch học</th><th>Sĩ số</th><th></th></tr></thead>

@@ -5,7 +5,21 @@
   <form method="post" class="form-grid">
     <div><label>Họ và tên</label><input name="full_name" value="{{ student.full_name if student else '' }}" required></div>
     <div><label>Mã học sinh</label><input name="code" value="{{ student.code or '' if student else '' }}"></div>
-    <div><label>Ngày sinh</label><input type="date" name="dob" value="{{ student.dob or '' if student else '' }}"></div>
+    {% set dob = student.dob if student and student.dob else '' %}
+    {% set d_day = dob[8:10] %}{% set d_mon = dob[5:7] %}{% set d_year = dob[0:4] %}
+    <div><label>Ngày sinh</label>
+      <div class="dob-pick">
+        <select name="dob_day"><option value="">Ngày</option>
+          {% for i in range(1,32) %}<option value="{{ i }}" {{ 'selected' if d_day and d_day|int==i }}>{{ i }}</option>{% endfor %}
+        </select>
+        <select name="dob_month"><option value="">Tháng</option>
+          {% for i in range(1,13) %}<option value="{{ i }}" {{ 'selected' if d_mon and d_mon|int==i }}>Tháng {{ i }}</option>{% endfor %}
+        </select>
+        <select name="dob_year"><option value="">Năm</option>
+          {% for y in range(today[:4]|int, today[:4]|int - 30, -1) %}<option value="{{ y }}" {{ 'selected' if d_year and d_year|int==y }}>{{ y }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
     <div><label>Giới tính</label>
       <select name="gender">
         <option value="">--</option>
