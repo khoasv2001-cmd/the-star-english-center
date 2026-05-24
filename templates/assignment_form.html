@@ -5,7 +5,7 @@
   {% if not classes %}
   <div class="empty">Bạn chưa phụ trách lớp nào để giao bài.</div>
   {% else %}
-  <form method="post" class="form-grid">
+  <form method="post" class="form-grid" enctype="multipart/form-data">
     <div class="full"><label>Lớp</label>
       <select name="class_id" required>
         {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
@@ -13,6 +13,11 @@
     <div class="full"><label>Tiêu đề</label><input name="title" required></div>
     <div class="full"><label>Nội dung / yêu cầu</label><textarea name="description" rows="5"></textarea></div>
     <div><label>Hạn nộp</label><input type="date" name="due_date"></div>
+    <div class="full"><label>📷 Chụp ảnh trang sách (có thể chụp nhiều ảnh)</label>
+      <input type="file" name="photos" accept="image/*" capture="environment" multiple>
+      <small class="muted">Trên điện thoại sẽ mở camera để chụp trực tiếp.</small></div>
+    <div class="full"><label>📎 Import tài liệu (PDF, Word, ảnh... — chọn nhiều tệp)</label>
+      <input type="file" name="files" multiple></div>
     <div class="form-actions"><button class="btn btn-primary">Giao bài</button>
       <a href="{{ url_for('assignments_list') }}" class="btn">Hủy</a></div>
   </form>

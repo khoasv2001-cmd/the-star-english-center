@@ -32,24 +32,33 @@
       <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">
         <span class="ico">🏠</span> Trang chủ</a>
 
+      {% if has_role('admin','director','manager','teacher') %}
       <a href="{{ url_for('classes_list') }}" class="{{ 'active' if 'class' in request.endpoint }}">
         <span class="ico">🏫</span> Lớp học</a>
+      {% endif %}
 
       {% if has_role('admin','director','manager','teacher','parent') %}
       <a href="{{ url_for('students_list') }}" class="{{ 'active' if 'student' in request.endpoint }}">
-        <span class="ico">🎓</span> Học sinh</a>
+        <span class="ico">🎓</span> {{ 'Con của tôi' if has_role('parent') else 'Học sinh' }}</a>
       {% endif %}
 
+      {% if has_role('admin','director','manager','teacher','student') %}
       <a href="{{ url_for('assignments_list') }}" class="{{ 'active' if 'assignment' in request.endpoint }}">
         <span class="ico">📚</span> Bài tập</a>
+      {% endif %}
+
+      <a href="{{ url_for('documents_list') }}" class="{{ 'active' if 'document' in request.endpoint }}">
+        <span class="ico">📁</span> Tài liệu</a>
 
       {% if has_role('admin','director','manager','teacher') %}
       <a href="{{ url_for('attendance_view') }}" class="{{ 'active' if request.endpoint=='attendance_view' }}">
         <span class="ico">✅</span> Điểm danh</a>
       {% endif %}
 
+      {% if has_role('admin','director','manager','teacher') %}
       <a href="{{ url_for('tuition_list') }}" class="{{ 'active' if 'tuition' in request.endpoint }}">
         <span class="ico">💰</span> Học phí</a>
+      {% endif %}
 
       {% if has_role('admin') %}
       <div class="menu-sep">Quản trị</div>

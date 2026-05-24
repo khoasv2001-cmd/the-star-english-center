@@ -5,6 +5,22 @@
 <div class="panel">
   <p class="muted">Lớp: <strong>{{ a.class_name }}</strong> · Hạn nộp: <strong>{{ a.due_date or 'Không' }}</strong></p>
   {% if a.description %}<p style="white-space:pre-wrap">{{ a.description }}</p>{% endif %}
+  {% if files %}
+  <h3 style="margin-top:14px">Tài liệu / ảnh đính kèm</h3>
+  <div class="attach-grid">
+    {% for f in files %}
+      {% set ext = f.file_name.rsplit('.',1)[-1]|lower if '.' in f.file_name else '' %}
+      <div class="attach-item">
+        {% if ext in ['png','jpg','jpeg','gif'] %}
+        <a href="{{ url_for('assignment_file_download', filename=f.file_path) }}" target="_blank">
+          <img src="{{ url_for('assignment_file_download', filename=f.file_path) }}" alt="{{ f.file_name }}"></a>
+        {% else %}
+        <a href="{{ url_for('assignment_file_download', filename=f.file_path) }}" class="file-link">📎 {{ f.file_name }}</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
 
 {# ---------- HỌC SINH: nộp bài ---------- #}

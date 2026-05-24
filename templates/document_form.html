@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Tải tài liệu học lên</h1></div>
+<div class="panel" style="max-width:680px">
+  <form method="post" class="form-grid" enctype="multipart/form-data">
+    <div class="full"><label>Tên tài liệu</label><input name="title" placeholder="VD: Bài nghe Unit 5" required></div>
+    <div class="full"><label>Mô tả (tùy chọn)</label><textarea name="description" rows="3"></textarea></div>
+    <div class="full"><label>Dành cho lớp</label>
+      <select name="class_id">
+        <option value="">-- Tài liệu chung (mọi lớp đều xem) --</option>
+        {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+      </select></div>
+    <div class="full"><label>Chọn tệp tài liệu</label>
+      <input type="file" name="file" required>
+      <small class="muted">Hỗ trợ PDF, Word, Excel, ảnh, âm thanh, video... tối đa 50MB.</small></div>
+    <div class="form-actions"><button class="btn btn-primary">Tải lên</button>
+      <a href="{{ url_for('documents_list') }}" class="btn">Hủy</a></div>
+  </form>
+</div>
+{% endblock %}

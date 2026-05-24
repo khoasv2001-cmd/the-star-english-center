@@ -131,3 +131,17 @@ form.form-grid .full{grid-column:1/-1}
   .hamburger{display:block}
   form.form-grid{grid-template-columns:1fr}
 }
+
+/* ===== Lịch học: chip chọn thứ ===== */
+.day-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.day-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--border);
+  border-radius:999px;cursor:pointer;user-select:none;background:#fff;font-size:14px}
+.day-chip input{accent-color:var(--green);margin:0}
+.day-chip:has(input:checked){background:var(--green-light);border-color:var(--green);color:var(--green-dark);font-weight:600}
+
+/* ===== Ảnh / tài liệu đính kèm bài tập ===== */
+.attach-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.attach-item img{width:140px;height:140px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
+.attach-item .file-link{display:inline-block;padding:10px 14px;background:var(--green-bg);
+  border:1px solid var(--border);border-radius:10px}
+small.muted{display:block;margin-top:4px;color:#8a94a6;font-size:12px}

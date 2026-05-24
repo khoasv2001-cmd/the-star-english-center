@@ -5,7 +5,20 @@
   <form method="post" class="form-grid">
     <div><label>Tên lớp</label><input name="name" value="{{ cls.name if cls else '' }}" required></div>
     <div><label>Trình độ</label><input name="level" value="{{ cls.level or '' if cls else '' }}" placeholder="VD: Starters, Movers..."></div>
-    <div><label>Lịch học</label><input name="schedule" value="{{ cls.schedule or '' if cls else '' }}" placeholder="VD: T2-T4-T6 18h"></div>
+    <div class="full"><label>Lịch học — chọn các thứ trong tuần</label>
+      <div class="day-picker">
+        {% for d in WEEKDAYS %}
+        <label class="day-chip">
+          <input type="checkbox" name="days" value="{{ d }}"
+            {{ 'checked' if cls and cls.schedule and d in cls.schedule }}>
+          <span>{{ d }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <div><label>Giờ học</label>
+      <input name="time" value="{{ cls.schedule.split('·')[-1].strip() if cls and cls.schedule and '·' in cls.schedule else '' }}"
+        placeholder="VD: 18h00 - 19h30"></div>
     <div><label>Phòng</label><input name="room" value="{{ cls.room or '' if cls else '' }}"></div>
     <div><label>Giáo viên phụ trách</label>
       <select name="teacher_id"><option value="">-- Chọn --</option>

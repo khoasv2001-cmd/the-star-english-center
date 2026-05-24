@@ -23,9 +23,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get('DATA_DIR', BASE_DIR)
 UPLOAD_DIR = os.path.join(DATA_DIR, 'uploads')
 SUBMISSION_DIR = os.path.join(UPLOAD_DIR, 'submissions')
+DOC_DIR = os.path.join(UPLOAD_DIR, 'documents')
+ASSIGNMENT_FILE_DIR = os.path.join(UPLOAD_DIR, 'assignments')
 DB_PATH = os.path.join(DATA_DIR, 'data.db')
 
-for d in (DATA_DIR, UPLOAD_DIR, SUBMISSION_DIR):
+for d in (DATA_DIR, UPLOAD_DIR, SUBMISSION_DIR, DOC_DIR, ASSIGNMENT_FILE_DIR):
     os.makedirs(d, exist_ok=True)
 
 ALLOWED_EXT = {'pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'zip', 'rar', 'txt', 'mp3', 'mp4'}
@@ -52,6 +54,10 @@ ROLES = {
 ROLE_RANK = {'student': 1, 'parent': 1, 'teacher': 2, 'manager': 3, 'director': 4, 'admin': 5}
 ATTENDANCE_LABELS = {'present': 'Có mặt', 'absent': 'Vắng', 'late': 'Đi muộn', 'excused': 'Có phép'}
 TUITION_LABELS = {'unpaid': 'Chưa đóng', 'partial': 'Đóng một phần', 'paid': 'Đã đóng'}
+# Các thứ trong tuần để tick chọn lịch học
+WEEKDAYS = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật']
+MAX_PARENTS_PER_STUDENT = 2
+MAX_STUDENTS_PER_PARENT = 5
 
 
 # ---------- DB ----------
@@ -175,7 +181,40 @@ def init_db():
         created_at TEXT NOT NULL,
         FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        file_path TEXT,
+        file_name TEXT,
+        class_id INTEGER,
+        uploaded_by INTEGER,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(class_id) REFERENCES classes(id) ON DELETE CASCADE,
+        FOREIGN KEY(uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS assignment_files (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        assignment_id INTEGER NOT NULL,
+        file_path TEXT NOT NULL,
+        file_name TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(assignment_id) REFERENCES assignments(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS student_parents (
+        student_id INTEGER NOT NULL,
+        parent_id INTEGER NOT NULL,
+        PRIMARY KEY(student_id, parent_id),
+        FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE,
+        FOREIGN KEY(parent_id) REFERENCES users(id) ON DELETE CASCADE
+    );
     ''')
+    # Chuyển dữ liệu phụ huynh cũ (students.parent_id) sang bảng liên kết nhiều-nhiều
+    conn.execute('''INSERT OR IGNORE INTO student_parents (student_id, parent_id)
+        SELECT id, parent_id FROM students WHERE parent_id IS NOT NULL''')
     conn.commit()
 
     # Tạo tài khoản admin mặc định nếu chưa có user nào
@@ -234,7 +273,7 @@ def inject_globals():
     return dict(
         ROLES=ROLES, ROLE_RANK=ROLE_RANK,
         ATTENDANCE_LABELS=ATTENDANCE_LABELS, TUITION_LABELS=TUITION_LABELS,
-        has_role=has_role, today=date.today().isoformat()
+        has_role=has_role, today=date.today().isoformat(), WEEKDAYS=WEEKDAYS
     )
 
 
@@ -260,7 +299,9 @@ def visible_class_ids():
         rows = db.execute('SELECT id FROM classes WHERE teacher_id=?', (current_user.id,)).fetchall()
     elif role == 'parent':
         rows = db.execute(
-            'SELECT DISTINCT class_id AS id FROM students WHERE parent_id=? AND class_id IS NOT NULL',
+            '''SELECT DISTINCT s.class_id AS id FROM students s
+               JOIN student_parents sp ON sp.student_id=s.id
+               WHERE sp.parent_id=? AND s.class_id IS NOT NULL''',
             (current_user.id,)).fetchall()
     elif role == 'student':
         rows = db.execute(
@@ -295,7 +336,8 @@ def visible_student_ids():
         rows = db.execute('SELECT id FROM students').fetchall()
         return [r['id'] for r in rows]
     if role == 'parent':
-        rows = db.execute('SELECT id FROM students WHERE parent_id=?', (current_user.id,)).fetchall()
+        rows = db.execute('SELECT student_id AS id FROM student_parents WHERE parent_id=?',
+                          (current_user.id,)).fetchall()
         return [r['id'] for r in rows]
     if role == 'student':
         rows = db.execute('SELECT id FROM students WHERE student_user_id=?', (current_user.id,)).fetchall()
@@ -319,6 +361,61 @@ def recalc_tuition_status(row_amount, paid):
     if paid < row_amount:
         return 'partial'
     return 'paid'
+
+
+def parents_of_student(sid):
+    """Danh sách tài khoản phụ huynh đang gắn với học sinh."""
+    return get_db().execute(
+        '''SELECT u.* FROM users u JOIN student_parents sp ON sp.parent_id=u.id
+           WHERE sp.student_id=? ORDER BY u.full_name''', (sid,)).fetchall()
+
+
+def parent_ids_of_student(sid):
+    rows = get_db().execute('SELECT parent_id FROM student_parents WHERE student_id=?', (sid,)).fetchall()
+    return [r['parent_id'] for r in rows]
+
+
+def set_student_parents(sid, parent_ids):
+    """Gán lại danh sách phụ huynh cho học sinh. Trả về (ok, thông_báo_lỗi)."""
+    db = get_db()
+    # Lọc trùng và giá trị rỗng, giới hạn số phụ huynh
+    clean = []
+    for pid in parent_ids:
+        if pid and pid not in clean:
+            clean.append(pid)
+    if len(clean) > MAX_PARENTS_PER_STUDENT:
+        return False, f'Mỗi học sinh chỉ gắn tối đa {MAX_PARENTS_PER_STUDENT} phụ huynh.'
+    # Kiểm tra mỗi phụ huynh không vượt quá số con cho phép
+    for pid in clean:
+        cnt = db.execute(
+            'SELECT COUNT(*) c FROM student_parents WHERE parent_id=? AND student_id<>?',
+            (pid, sid)).fetchone()['c']
+        if cnt >= MAX_STUDENTS_PER_PARENT:
+            p = db.execute('SELECT full_name FROM users WHERE id=?', (pid,)).fetchone()
+            name = p['full_name'] if p else pid
+            return False, f'Phụ huynh "{name}" đã theo dõi đủ {MAX_STUDENTS_PER_PARENT} học sinh.'
+    db.execute('DELETE FROM student_parents WHERE student_id=?', (sid,))
+    for pid in clean:
+        db.execute('INSERT OR IGNORE INTO student_parents (student_id, parent_id) VALUES (?,?)', (sid, pid))
+    # Giữ students.parent_id = phụ huynh đầu tiên để tương thích hiển thị cũ
+    db.execute('UPDATE students SET parent_id=? WHERE id=?', (clean[0] if clean else None, sid))
+    return True, None
+
+
+def visible_document_ids():
+    """Id tài liệu mà người dùng hiện tại được xem."""
+    db = get_db()
+    if has_role('admin', 'director'):
+        rows = db.execute('SELECT id FROM documents').fetchall()
+        return [r['id'] for r in rows]
+    cids = visible_class_ids()
+    # Tài liệu chung (class_id IS NULL) ai cũng xem được
+    if cids:
+        q = 'SELECT id FROM documents WHERE class_id IS NULL OR class_id IN (%s)' % ','.join('?' * len(cids))
+        rows = db.execute(q, cids).fetchall()
+    else:
+        rows = db.execute('SELECT id FROM documents WHERE class_id IS NULL').fetchall()
+    return [r['id'] for r in rows]
 
 
 # ============================================================
@@ -413,8 +510,9 @@ def dashboard():
     if role == 'parent':
         children = db.execute('''
             SELECT s.*, c.name class_name FROM students s
+            JOIN student_parents sp ON sp.student_id=s.id
             LEFT JOIN classes c ON c.id=s.class_id
-            WHERE s.parent_id=? ORDER BY s.full_name''', (current_user.id,)).fetchall()
+            WHERE sp.parent_id=? ORDER BY s.full_name''', (current_user.id,)).fetchall()
         return render_template('dashboard_parent.html', children=children)
 
     # student
@@ -495,7 +593,7 @@ def user_edit(uid):
 #  LỚP HỌC
 # ============================================================
 @app.route('/lop-hoc')
-@login_required
+@roles_required('admin', 'director', 'manager', 'teacher')
 def classes_list():
     db = get_db()
     if has_role('admin', 'director'):
@@ -517,6 +615,19 @@ def classes_list():
     return render_template('classes_list.html', classes=rows)
 
 
+def _build_schedule():
+    """Ghép lịch học từ các thứ được tick + giờ học thành chuỗi."""
+    days = request.form.getlist('days')
+    days = [d for d in WEEKDAYS if d in days]  # giữ đúng thứ tự trong tuần
+    time = (request.form.get('time') or '').strip()
+    parts = []
+    if days:
+        parts.append(', '.join(days))
+    if time:
+        parts.append(time)
+    return ' · '.join(parts)
+
+
 @app.route('/lop-hoc/them', methods=['GET', 'POST'])
 @roles_required('admin', 'director', 'manager')
 def class_create():
@@ -524,7 +635,7 @@ def class_create():
     if request.method == 'POST':
         db.execute('''INSERT INTO classes (name, level, schedule, room, manager_id, teacher_id, note, created_at)
             VALUES (?,?,?,?,?,?,?,?)''',
-            (request.form.get('name'), request.form.get('level'), request.form.get('schedule'),
+            (request.form.get('name'), request.form.get('level'), _build_schedule(),
              request.form.get('room'), request.form.get('manager_id') or None,
              request.form.get('teacher_id') or None, request.form.get('note'), datetime.now().isoformat()))
         db.commit()
@@ -546,7 +657,7 @@ def class_edit(cid):
         abort(403)
     if request.method == 'POST':
         db.execute('''UPDATE classes SET name=?, level=?, schedule=?, room=?, manager_id=?, teacher_id=?, note=?, active=? WHERE id=?''',
-            (request.form.get('name'), request.form.get('level'), request.form.get('schedule'),
+            (request.form.get('name'), request.form.get('level'), _build_schedule(),
              request.form.get('room'), request.form.get('manager_id') or None,
              request.form.get('teacher_id') or None, request.form.get('note'),
              1 if request.form.get('active') else 0, cid))
@@ -579,7 +690,7 @@ def class_detail(cid):
 #  HỌC SINH
 # ============================================================
 @app.route('/hoc-sinh')
-@login_required
+@roles_required('admin', 'director', 'manager', 'teacher', 'parent')
 def students_list():
     db = get_db()
     sids = visible_student_ids()
@@ -605,19 +716,25 @@ def students_list():
 def student_create():
     db = get_db()
     if request.method == 'POST':
-        db.execute('''INSERT INTO students
+        cur = db.execute('''INSERT INTO students
             (code, full_name, dob, gender, phone, address, class_id, parent_id, student_user_id, monthly_fee, note, created_at)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)''',
             (request.form.get('code'), request.form.get('full_name'), request.form.get('dob'),
              request.form.get('gender'), request.form.get('phone'), request.form.get('address'),
-             request.form.get('class_id') or None, request.form.get('parent_id') or None,
+             request.form.get('class_id') or None, None,
              request.form.get('student_user_id') or None,
              float(request.form.get('monthly_fee') or 0), request.form.get('note'),
              datetime.now().isoformat()))
+        sid = cur.lastrowid
+        pids = [request.form.get('parent_id_1') or None, request.form.get('parent_id_2') or None]
+        ok, err = set_student_parents(sid, pids)
         db.commit()
-        flash('Đã thêm học sinh.', 'success')
+        if not ok:
+            flash('Đã thêm học sinh nhưng chưa gắn phụ huynh: ' + err, 'danger')
+        else:
+            flash('Đã thêm học sinh.', 'success')
         return redirect(url_for('students_list'))
-    return render_template('student_form.html', student=None, **_student_form_options())
+    return render_template('student_form.html', student=None, student_parent_ids=[], **_student_form_options())
 
 
 @app.route('/hoc-sinh/<int:sid>/sua', methods=['GET', 'POST'])
@@ -631,16 +748,22 @@ def student_edit(sid):
         abort(403)
     if request.method == 'POST':
         db.execute('''UPDATE students SET code=?, full_name=?, dob=?, gender=?, phone=?, address=?,
-            class_id=?, parent_id=?, student_user_id=?, monthly_fee=?, note=?, active=? WHERE id=?''',
+            class_id=?, student_user_id=?, monthly_fee=?, note=?, active=? WHERE id=?''',
             (request.form.get('code'), request.form.get('full_name'), request.form.get('dob'),
              request.form.get('gender'), request.form.get('phone'), request.form.get('address'),
-             request.form.get('class_id') or None, request.form.get('parent_id') or None,
+             request.form.get('class_id') or None,
              request.form.get('student_user_id') or None, float(request.form.get('monthly_fee') or 0),
              request.form.get('note'), 1 if request.form.get('active') else 0, sid))
+        pids = [request.form.get('parent_id_1') or None, request.form.get('parent_id_2') or None]
+        ok, err = set_student_parents(sid, pids)
         db.commit()
-        flash('Đã cập nhật học sinh.', 'success')
+        if not ok:
+            flash('Đã lưu hồ sơ nhưng phần phụ huynh: ' + err, 'danger')
+        else:
+            flash('Đã cập nhật học sinh.', 'success')
         return redirect(url_for('student_detail', sid=sid))
-    return render_template('student_form.html', student=student, **_student_form_options())
+    return render_template('student_form.html', student=student,
+                           student_parent_ids=parent_ids_of_student(sid), **_student_form_options())
 
 
 def _student_form_options():
@@ -656,6 +779,8 @@ def _student_form_options():
 @login_required
 def student_detail(sid):
     db = get_db()
+    if current_user.role == 'student':
+        abort(403)
     if sid not in visible_student_ids():
         abort(403)
     student = db.execute('''SELECT s.*, c.name class_name, p.full_name parent_name, p.phone parent_phone
@@ -668,14 +793,14 @@ def student_detail(sid):
     submissions = db.execute('''SELECT sub.*, a.title FROM submissions sub
         JOIN assignments a ON a.id=sub.assignment_id WHERE sub.student_id=? ORDER BY sub.submitted_at DESC''', (sid,)).fetchall()
     return render_template('student_detail.html', student=student, attendance=attendance,
-                           tuition=tuition, submissions=submissions)
+                           tuition=tuition, submissions=submissions, parents=parents_of_student(sid))
 
 
 # ============================================================
 #  BÀI TẬP
 # ============================================================
 @app.route('/bai-tap')
-@login_required
+@roles_required('admin', 'director', 'manager', 'teacher', 'student')
 def assignments_list():
     db = get_db()
     role = current_user.role
@@ -708,13 +833,25 @@ def assignment_create():
         cid = int(request.form.get('class_id'))
         if not can_manage_class(cid):
             abort(403)
-        db.execute('''INSERT INTO assignments (class_id, teacher_id, title, description, due_date, created_at)
+        cur = db.execute('''INSERT INTO assignments (class_id, teacher_id, title, description, due_date, created_at)
             VALUES (?,?,?,?,?,?)''',
             (cid, current_user.id, request.form.get('title'), request.form.get('description'),
              request.form.get('due_date'), datetime.now().isoformat()))
+        aid = cur.lastrowid
+        # Lưu ảnh trang sách / tài liệu đính kèm (nhiều file)
+        files = request.files.getlist('photos') + request.files.getlist('files')
+        n = 0
+        for f in files:
+            if f and f.filename and allowed_file(f.filename):
+                fname = secure_filename(f.filename)
+                stored = f"{aid}_{n}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{fname}"
+                f.save(os.path.join(ASSIGNMENT_FILE_DIR, stored))
+                db.execute('''INSERT INTO assignment_files (assignment_id, file_path, file_name, created_at)
+                    VALUES (?,?,?,?)''', (aid, stored, fname, datetime.now().isoformat()))
+                n += 1
         db.commit()
         flash('Đã giao bài tập.', 'success')
-        return redirect(url_for('assignments_list'))
+        return redirect(url_for('assignment_detail', aid=aid))
     cids = visible_class_ids()
     classes = []
     if cids:
@@ -731,8 +868,11 @@ def assignment_detail(aid):
         JOIN classes c ON c.id=a.class_id WHERE a.id=?''', (aid,)).fetchone()
     if not a:
         abort(404)
+    if current_user.role == 'parent':
+        abort(403)
     if not can_view_class(a['class_id']):
         abort(403)
+    files = db.execute('SELECT * FROM assignment_files WHERE assignment_id=? ORDER BY id', (aid,)).fetchall()
     # Học sinh xem bài của mình + form nộp
     if current_user.role == 'student':
         srow = get_student_record_for_user()
@@ -740,7 +880,7 @@ def assignment_detail(aid):
         if srow:
             sub = db.execute('SELECT * FROM submissions WHERE assignment_id=? AND student_id=?',
                              (aid, srow['id'])).fetchone()
-        return render_template('assignment_detail.html', a=a, my_submission=sub, submissions=None)
+        return render_template('assignment_detail.html', a=a, my_submission=sub, submissions=None, files=files)
     # Giáo viên/quản lý: danh sách nộp của cả lớp
     submissions = db.execute('''SELECT s.id student_id, s.full_name,
         sub.id sub_id, sub.status, sub.score, sub.submitted_at, sub.file_name, sub.file_path, sub.content, sub.feedback
@@ -748,7 +888,7 @@ def assignment_detail(aid):
         LEFT JOIN submissions sub ON sub.student_id=s.id AND sub.assignment_id=?
         WHERE s.class_id=? AND s.active=1 ORDER BY s.full_name''', (aid, a['class_id'])).fetchall()
     return render_template('assignment_detail.html', a=a, submissions=submissions,
-                           my_submission=None, can_manage=can_manage_class(a['class_id']))
+                           my_submission=None, can_manage=can_manage_class(a['class_id']), files=files)
 
 
 @app.route('/bai-tap/<int:aid>/nop', methods=['POST'])
@@ -810,6 +950,18 @@ def grade_submission(sub_id):
 @login_required
 def submission_file(filename):
     return send_from_directory(SUBMISSION_DIR, filename, as_attachment=True)
+
+
+@app.route('/bai-tap/file/<path:filename>')
+@login_required
+def assignment_file_download(filename):
+    row = get_db().execute('SELECT assignment_id FROM assignment_files WHERE file_path=?', (filename,)).fetchone()
+    if not row:
+        abort(404)
+    a = get_db().execute('SELECT class_id FROM assignments WHERE id=?', (row['assignment_id'],)).fetchone()
+    if not a or not can_view_class(a['class_id']):
+        abort(403)
+    return send_from_directory(ASSIGNMENT_FILE_DIR, filename, as_attachment=True)
 
 
 # ---------- PWA (cài app lên điện thoại) ----------
@@ -877,7 +1029,7 @@ def attendance_view():
 #  HỌC PHÍ
 # ============================================================
 @app.route('/hoc-phi')
-@login_required
+@roles_required('admin', 'director', 'manager', 'teacher', 'parent')
 def tuition_list():
     db = get_db()
     sids = visible_student_ids()
@@ -945,6 +1097,94 @@ def tuition_pay(tid):
     return redirect(request.referrer or url_for('tuition_list'))
 
 
+# ============================================================
+#  THƯ VIỆN TÀI LIỆU
+# ============================================================
+@app.route('/tai-lieu')
+@login_required
+def documents_list():
+    db = get_db()
+    dids = visible_document_ids()
+    if dids:
+        q = '''SELECT d.*, c.name class_name, u.full_name uploader_name FROM documents d
+            LEFT JOIN classes c ON c.id=d.class_id
+            LEFT JOIN users u ON u.id=d.uploaded_by
+            WHERE d.id IN (%s) ORDER BY d.created_at DESC''' % ','.join('?' * len(dids))
+        docs = db.execute(q, dids).fetchall()
+    else:
+        docs = []
+    can_manage = has_role('admin', 'director', 'manager', 'teacher')
+    return render_template('documents_list.html', docs=docs, can_manage=can_manage)
+
+
+@app.route('/tai-lieu/them', methods=['GET', 'POST'])
+@roles_required('admin', 'director', 'manager', 'teacher')
+def document_create():
+    db = get_db()
+    if request.method == 'POST':
+        f = request.files.get('file')
+        if not f or not f.filename:
+            flash('Vui lòng chọn tệp tài liệu.', 'danger')
+            return redirect(url_for('document_create'))
+        if not allowed_file(f.filename):
+            flash('Định dạng tệp không được hỗ trợ.', 'danger')
+            return redirect(url_for('document_create'))
+        cid = request.form.get('class_id') or None
+        # Giáo viên/quản lý chỉ được đăng cho lớp mình phụ trách (hoặc tài liệu chung)
+        if cid and not has_role('admin', 'director') and int(cid) not in visible_class_ids():
+            abort(403)
+        fname = secure_filename(f.filename)
+        stored = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{fname}"
+        f.save(os.path.join(DOC_DIR, stored))
+        db.execute('''INSERT INTO documents (title, description, file_path, file_name, class_id, uploaded_by, created_at)
+            VALUES (?,?,?,?,?,?,?)''',
+            (request.form.get('title') or fname, request.form.get('description'),
+             stored, fname, cid, current_user.id, datetime.now().isoformat()))
+        db.commit()
+        flash('Đã tải lên tài liệu.', 'success')
+        return redirect(url_for('documents_list'))
+    # Lựa chọn lớp để gắn tài liệu
+    if has_role('admin', 'director'):
+        classes = db.execute('SELECT id, name FROM classes WHERE active=1 ORDER BY name').fetchall()
+    else:
+        cids = visible_class_ids()
+        classes = []
+        if cids:
+            q = 'SELECT id, name FROM classes WHERE id IN (%s) ORDER BY name' % ','.join('?' * len(cids))
+            classes = db.execute(q, cids).fetchall()
+    return render_template('document_form.html', classes=classes)
+
+
+@app.route('/tai-lieu/<int:did>/xoa', methods=['POST'])
+@roles_required('admin', 'director', 'manager', 'teacher')
+def document_delete(did):
+    db = get_db()
+    doc = db.execute('SELECT * FROM documents WHERE id=?', (did,)).fetchone()
+    if not doc:
+        abort(404)
+    # Chỉ admin/giám đốc hoặc người đăng được xóa
+    if not has_role('admin', 'director') and doc['uploaded_by'] != current_user.id:
+        abort(403)
+    if doc['file_path']:
+        try:
+            os.remove(os.path.join(DOC_DIR, doc['file_path']))
+        except OSError:
+            pass
+    db.execute('DELETE FROM documents WHERE id=?', (did,))
+    db.commit()
+    flash('Đã xóa tài liệu.', 'success')
+    return redirect(url_for('documents_list'))
+
+
+@app.route('/tai-lieu/file/<path:filename>')
+@login_required
+def document_file(filename):
+    doc = get_db().execute('SELECT id FROM documents WHERE file_path=?', (filename,)).fetchone()
+    if not doc or doc['id'] not in visible_document_ids():
+        abort(403)
+    return send_from_directory(DOC_DIR, filename, as_attachment=True)
+
+
 # ---------- error handlers ----------
 @app.errorhandler(403)
 def forbidden(e):
@@ -954,6 +1194,12 @@ def forbidden(e):
 @app.errorhandler(404)
 def notfound(e):
     return render_template('error.html', code=404, msg='Không tìm thấy nội dung.'), 404
+
+
+@app.errorhandler(413)
+def too_large(e):
+    return render_template('error.html', code=413,
+                           msg=f'Tệp quá lớn. Giới hạn {MAX_UPLOAD_MB}MB mỗi tệp.'), 413
 
 
 init_db()

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Thư viện tài liệu</h1>
+  {% if can_manage %}
+  <a href="{{ url_for('document_create') }}" class="btn btn-primary">+ Tải tài liệu lên</a>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Tài liệu</th><th>Dành cho lớp</th><th>Người đăng</th><th>Ngày</th><th></th></tr></thead>
+    <tbody>
+      {% for d in docs %}
+      <tr>
+        <td>
+          <strong>{{ d.title }}</strong>
+          {% if d.description %}<div class="muted" style="max-width:360px;white-space:pre-wrap">{{ d.description }}</div>{% endif %}
+          {% if d.file_name %}<div><a href="{{ url_for('document_file', filename=d.file_path) }}">📎 {{ d.file_name }}</a></div>{% endif %}
+        </td>
+        <td>{% if d.class_name %}<span class="tag tag-blue">{{ d.class_name }}</span>{% else %}<span class="tag tag-green">Chung (mọi lớp)</span>{% endif %}</td>
+        <td>{{ d.uploader_name or '—' }}</td>
+        <td class="muted">{{ d.created_at[:10] }}</td>
+        <td>
+          <a href="{{ url_for('document_file', filename=d.file_path) }}" class="btn btn-sm btn-outline">Tải về</a>
+          {% if can_manage %}
+          <form method="post" action="{{ url_for('document_delete', did=d.id) }}" style="display:inline"
+                onsubmit="return confirm('Xóa tài liệu này?')">
+            <button class="btn btn-sm btn-danger">Xóa</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">Chưa có tài liệu nào.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

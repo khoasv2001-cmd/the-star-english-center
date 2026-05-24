@@ -19,10 +19,15 @@
       <select name="class_id"><option value="">-- Chưa xếp lớp --</option>
         {% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if student and student.class_id==c.id }}>{{ c.name }}</option>{% endfor %}
       </select></div>
-    <div><label>Tài khoản phụ huynh</label>
-      <select name="parent_id"><option value="">-- Không --</option>
-        {% for p in parents %}<option value="{{ p.id }}" {{ 'selected' if student and student.parent_id==p.id }}>{{ p.full_name }} ({{ p.username }})</option>{% endfor %}
+    <div><label>Phụ huynh 1</label>
+      <select name="parent_id_1"><option value="">-- Không --</option>
+        {% for p in parents %}<option value="{{ p.id }}" {{ 'selected' if student_parent_ids and student_parent_ids|length > 0 and student_parent_ids[0]==p.id }}>{{ p.full_name }} ({{ p.username }})</option>{% endfor %}
       </select></div>
+    <div><label>Phụ huynh 2 (tùy chọn)</label>
+      <select name="parent_id_2"><option value="">-- Không --</option>
+        {% for p in parents %}<option value="{{ p.id }}" {{ 'selected' if student_parent_ids and student_parent_ids|length > 1 and student_parent_ids[1]==p.id }}>{{ p.full_name }} ({{ p.username }})</option>{% endfor %}
+      </select>
+      <small class="muted">Mỗi học sinh tối đa 2 phụ huynh · mỗi phụ huynh theo dõi tối đa 5 học sinh.</small></div>
     <div><label>Tài khoản học sinh</label>
       <select name="student_user_id"><option value="">-- Không --</option>
         {% for u in student_users %}<option value="{{ u.id }}" {{ 'selected' if student and student.student_user_id==u.id }}>{{ u.full_name }} ({{ u.username }})</option>{% endfor %}

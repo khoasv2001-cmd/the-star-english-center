@@ -10,8 +10,13 @@
 <div class="cards">
   <div class="card stat-card"><div class="label">Lớp</div><div class="value" style="font-size:18px">{{ student.class_name or '—' }}</div></div>
   <div class="card stat-card"><div class="label">Ngày sinh</div><div class="value" style="font-size:18px">{{ student.dob or '—' }}</div></div>
-  <div class="card stat-card"><div class="label">Phụ huynh</div><div class="value" style="font-size:18px">{{ student.parent_name or '—' }}</div>
-    {% if student.parent_phone %}<div class="sub">{{ student.parent_phone }}</div>{% endif %}</div>
+  <div class="card stat-card"><div class="label">Phụ huynh</div>
+    {% if parents %}
+      {% for p in parents %}
+        <div class="value" style="font-size:16px">{{ p.full_name or p.username }}</div>
+        {% if p.phone %}<div class="sub">{{ p.phone }}</div>{% endif %}
+      {% endfor %}
+    {% else %}<div class="value" style="font-size:18px">—</div>{% endif %}</div>
   <div class="card stat-card"><div class="label">Học phí/tháng</div><div class="value" style="font-size:18px">{{ '{:,.0f}'.format(student.monthly_fee or 0) }}</div></div>
 </div>
 
