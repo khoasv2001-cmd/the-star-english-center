@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Tổng quan trung tâm</h1></div>
+
+<div class="cards">
+  <div class="card stat-card"><div class="label">Tổng học sinh</div><div class="value">{{ stats.total_students }}</div></div>
+  <div class="card stat-card"><div class="label">Số lớp đang mở</div><div class="value">{{ stats.total_classes }}</div></div>
+  <div class="card stat-card"><div class="label">Giáo viên</div><div class="value">{{ stats.total_teachers }}</div></div>
+  <div class="card stat-card"><div class="label">Học phí đã thu</div>
+    <div class="value">{{ '{:,.0f}'.format(stats.tuition_paid) }}</div>
+    <div class="sub">Còn nợ: {{ '{:,.0f}'.format(stats.tuition_due) }} đ</div></div>
+</div>
+
+<div class="panel">
+  <h2>Các lớp học</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Lớp</th><th>Trình độ</th><th>Giáo viên</th><th>Lịch học</th><th>Sĩ số</th><th></th></tr></thead>
+    <tbody>
+      {% for c in stats.classes %}
+      <tr>
+        <td><strong>{{ c.name }}</strong></td>
+        <td>{{ c.level or '—' }}</td>
+        <td>{{ c.teacher_name or '—' }}</td>
+        <td>{{ c.schedule or '—' }}</td>
+        <td>{{ c.student_count }}</td>
+        <td><a href="{{ url_for('class_detail', cid=c.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">Chưa có lớp nào.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

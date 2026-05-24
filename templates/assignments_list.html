@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Bài tập</h1>
+  {% if has_role('admin','director','manager','teacher') %}
+  <a href="{{ url_for('assignment_create') }}" class="btn btn-primary">+ Giao bài tập</a>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Tiêu đề</th><th>Lớp</th><th>Hạn nộp</th>
+      {% if has_role('admin','director','manager','teacher') %}<th>Đã nộp</th>{% else %}<th>Trạng thái</th><th>Điểm</th>{% endif %}
+      <th></th></tr></thead>
+    <tbody>
+      {% for a in assignments %}
+      <tr>
+        <td><strong>{{ a.title }}</strong></td>
+        <td>{{ a.class_name }}</td>
+        <td>{{ a.due_date or '—' }}</td>
+        {% if has_role('admin','director','manager','teacher') %}
+        <td>{{ a.submitted_count }}/{{ a.total_students }}</td>
+        {% else %}
+        <td>{% if a.sub_status=='graded' %}<span class="tag tag-green">Đã chấm</span>
+          {% elif a.sub_status in ('submitted','late') %}<span class="tag tag-blue">Đã nộp</span>
+          {% else %}<span class="tag tag-gray">Chưa nộp</span>{% endif %}</td>
+        <td>{{ a.score if a.score is not none else '—' }}</td>
+        {% endif %}
+        <td><a href="{{ url_for('assignment_detail', aid=a.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
+      </tr>
+      {% else %}<tr><td colspan="6" class="empty">Chưa có bài tập.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

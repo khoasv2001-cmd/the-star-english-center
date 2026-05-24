@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Quản lý người dùng</h1>
+  <a href="{{ url_for('user_create') }}" class="btn btn-primary">+ Thêm tài khoản</a>
+</div>
+
+<div class="toolbar">
+  <form method="get" class="row-flex">
+    <select name="role" onchange="this.form.submit()">
+      <option value="">-- Tất cả vai trò --</option>
+      {% for key, label in ROLES.items() %}
+      <option value="{{ key }}" {{ 'selected' if role_filter==key }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Họ tên</th><th>Đăng nhập</th><th>Vai trò</th><th>Email / SĐT</th><th>Trạng thái</th><th></th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td><strong>{{ u.full_name or '—' }}</strong></td>
+        <td>{{ u.username }}</td>
+        <td><span class="role-badge role-{{ u.role }}">{{ ROLES.get(u.role, u.role) }}</span></td>
+        <td>{{ u.email or '' }} {{ u.phone or '' }}</td>
+        <td>{% if u.active %}<span class="tag tag-green">Hoạt động</span>{% else %}<span class="tag tag-gray">Đã khóa</span>{% endif %}</td>
+        <td><a href="{{ url_for('user_edit', uid=u.id) }}" class="btn btn-sm btn-outline">Sửa</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">Chưa có tài khoản.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Tạo phiếu học phí</h1></div>
+<div class="panel" style="max-width:640px">
+  <form method="post" class="form-grid">
+    <div><label>Kỳ (tháng)</label><input type="month" name="period" value="{{ today[:7] }}" required></div>
+    <div><label>Hạn đóng</label><input type="date" name="due_date"></div>
+    <div class="full"><label>Áp dụng cho</label>
+      <select name="target" id="target" onchange="toggleTarget()">
+        <option value="class">Cả lớp</option>
+        <option value="student">Một học sinh</option>
+      </select></div>
+    <div class="full" id="box-class"><label>Lớp</label>
+      <select name="class_id">
+        {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+      </select></div>
+    <div class="full" id="box-student" style="display:none"><label>Học sinh</label>
+      <select name="student_id">
+        {% for s in students %}<option value="{{ s.id }}">{{ s.full_name }}</option>{% endfor %}
+      </select></div>
+    <div class="full"><label>Số tiền (để trống = dùng học phí/tháng của từng học sinh)</label>
+      <input type="number" name="amount" placeholder="VD: 1500000"></div>
+    <div class="form-actions"><button class="btn btn-primary">Tạo phiếu</button>
+      <a href="{{ url_for('tuition_list') }}" class="btn">Hủy</a></div>
+  </form>
+</div>
+<script>
+function toggleTarget(){
+  var t=document.getElementById('target').value;
+  document.getElementById('box-class').style.display = t=='class'?'block':'none';
+  document.getElementById('box-student').style.display = t=='student'?'block':'none';
+}
+</script>
+{% endblock %}

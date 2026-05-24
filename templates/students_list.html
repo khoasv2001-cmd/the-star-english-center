@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Học sinh</h1>
+  {% if has_role('admin','director','manager','teacher') %}
+  <a href="{{ url_for('student_create') }}" class="btn btn-primary">+ Thêm học sinh</a>
+  {% endif %}
+</div>
+
+{% if classes %}
+<div class="toolbar">
+  <form method="get" class="row-flex">
+    <select name="class_id" onchange="this.form.submit()">
+      <option value="">-- Tất cả lớp --</option>
+      {% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if class_filter==c.id|string }}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Họ tên</th><th>Mã HS</th><th>Lớp</th><th>Ngày sinh</th><th>Phụ huynh</th><th></th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td><strong>{{ s.full_name }}</strong></td>
+        <td>{{ s.code or '—' }}</td>
+        <td>{{ s.class_name or '—' }}</td>
+        <td>{{ s.dob or '—' }}</td>
+        <td>{{ s.parent_name or '—' }}</td>
+        <td><a href="{{ url_for('student_detail', sid=s.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
+      </tr>
+      {% else %}<tr><td colspan="6" class="empty">Chưa có học sinh.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

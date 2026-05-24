@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Lớp học</h1>
+  {% if has_role('admin','director','manager') %}
+  <a href="{{ url_for('class_create') }}" class="btn btn-primary">+ Thêm lớp</a>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Tên lớp</th><th>Trình độ</th><th>Giáo viên</th><th>Quản lý</th><th>Lịch học</th><th>Sĩ số</th><th></th></tr></thead>
+    <tbody>
+      {% for c in classes %}
+      <tr>
+        <td><strong>{{ c.name }}</strong></td>
+        <td>{{ c.level or '—' }}</td>
+        <td>{{ c.teacher_name or '—' }}</td>
+        <td>{{ c.manager_name or '—' }}</td>
+        <td>{{ c.schedule or '—' }}</td>
+        <td>{{ c.student_count }}</td>
+        <td><a href="{{ url_for('class_detail', cid=c.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="empty">Chưa có lớp học nào.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

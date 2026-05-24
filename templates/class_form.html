@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>{{ 'Sửa lớp học' if cls else 'Thêm lớp học' }}</h1></div>
+<div class="panel" style="max-width:720px">
+  <form method="post" class="form-grid">
+    <div><label>Tên lớp</label><input name="name" value="{{ cls.name if cls else '' }}" required></div>
+    <div><label>Trình độ</label><input name="level" value="{{ cls.level or '' if cls else '' }}" placeholder="VD: Starters, Movers..."></div>
+    <div><label>Lịch học</label><input name="schedule" value="{{ cls.schedule or '' if cls else '' }}" placeholder="VD: T2-T4-T6 18h"></div>
+    <div><label>Phòng</label><input name="room" value="{{ cls.room or '' if cls else '' }}"></div>
+    <div><label>Giáo viên phụ trách</label>
+      <select name="teacher_id"><option value="">-- Chọn --</option>
+        {% for t in teachers %}<option value="{{ t.id }}" {{ 'selected' if cls and cls.teacher_id==t.id }}>{{ t.full_name }}</option>{% endfor %}
+      </select></div>
+    <div><label>Quản lý lớp</label>
+      <select name="manager_id"><option value="">-- Chọn --</option>
+        {% for m in managers %}<option value="{{ m.id }}" {{ 'selected' if cls and cls.manager_id==m.id }}>{{ m.full_name }}</option>{% endfor %}
+      </select></div>
+    <div class="full"><label>Ghi chú</label><textarea name="note">{{ cls.note or '' if cls else '' }}</textarea></div>
+    {% if cls %}
+    <div class="full"><label><input type="checkbox" name="active" {{ 'checked' if cls.active }}> Lớp đang hoạt động</label></div>
+    {% endif %}
+    <div class="form-actions"><button class="btn btn-primary">Lưu</button>
+      <a href="{{ url_for('classes_list') }}" class="btn">Hủy</a></div>
+  </form>
+</div>
+{% endblock %}

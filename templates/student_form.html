@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>{{ 'Sửa hồ sơ học sinh' if student else 'Thêm học sinh' }}</h1></div>
+<div class="panel" style="max-width:760px">
+  <form method="post" class="form-grid">
+    <div><label>Họ và tên</label><input name="full_name" value="{{ student.full_name if student else '' }}" required></div>
+    <div><label>Mã học sinh</label><input name="code" value="{{ student.code or '' if student else '' }}"></div>
+    <div><label>Ngày sinh</label><input type="date" name="dob" value="{{ student.dob or '' if student else '' }}"></div>
+    <div><label>Giới tính</label>
+      <select name="gender">
+        <option value="">--</option>
+        <option value="Nam" {{ 'selected' if student and student.gender=='Nam' }}>Nam</option>
+        <option value="Nữ" {{ 'selected' if student and student.gender=='Nữ' }}>Nữ</option>
+      </select></div>
+    <div><label>Số điện thoại</label><input name="phone" value="{{ student.phone or '' if student else '' }}"></div>
+    <div><label>Học phí / tháng (đ)</label><input type="number" name="monthly_fee" value="{{ student.monthly_fee or 0 if student else 0 }}"></div>
+    <div class="full"><label>Địa chỉ</label><input name="address" value="{{ student.address or '' if student else '' }}"></div>
+    <div><label>Lớp</label>
+      <select name="class_id"><option value="">-- Chưa xếp lớp --</option>
+        {% for c in classes %}<option value="{{ c.id }}" {{ 'selected' if student and student.class_id==c.id }}>{{ c.name }}</option>{% endfor %}
+      </select></div>
+    <div><label>Tài khoản phụ huynh</label>
+      <select name="parent_id"><option value="">-- Không --</option>
+        {% for p in parents %}<option value="{{ p.id }}" {{ 'selected' if student and student.parent_id==p.id }}>{{ p.full_name }} ({{ p.username }})</option>{% endfor %}
+      </select></div>
+    <div><label>Tài khoản học sinh</label>
+      <select name="student_user_id"><option value="">-- Không --</option>
+        {% for u in student_users %}<option value="{{ u.id }}" {{ 'selected' if student and student.student_user_id==u.id }}>{{ u.full_name }} ({{ u.username }})</option>{% endfor %}
+      </select></div>
+    <div class="full"><label>Ghi chú</label><textarea name="note">{{ student.note or '' if student else '' }}</textarea></div>
+    {% if student %}
+    <div class="full"><label><input type="checkbox" name="active" {{ 'checked' if student.active }}> Đang theo học</label></div>
+    {% endif %}
+    <div class="form-actions"><button class="btn btn-primary">Lưu</button>
+      <a href="{{ url_for('students_list') }}" class="btn">Hủy</a></div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập - THE STAR ENGLISH CENTER</title>
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- PWA: cài app lên điện thoại Android / iOS -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1aa637">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="THE STAR">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function (e) {});
+      });
+    }
+  </script>
+</head>
+<body class="login-page">
+  <div class="login-card">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="THE STAR ENGLISH CENTER"
+         class="login-logo" onerror="this.style.display='none'">
+    <h1>Đăng nhập hệ thống</h1>
+    <p class="login-sub">SPEAK UP - GROW UP!</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+      <label>Tên đăng nhập</label>
+      <input type="text" name="username" required autofocus>
+      <label>Mật khẩu</label>
+      <input type="password" name="password" required>
+      <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+    </form>
+  </div>
+</body>
+</html>

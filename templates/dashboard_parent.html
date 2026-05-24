@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Con của tôi</h1></div>
+
+{% for ch in children %}
+<div class="panel">
+  <div class="row-flex" style="justify-content:space-between">
+    <h2 style="margin:0">{{ ch.full_name }}</h2>
+    <span class="tag tag-blue">{{ ch.class_name or 'Chưa xếp lớp' }}</span>
+  </div>
+  <p class="muted" style="margin:8px 0 14px">
+    {% if ch.dob %}Ngày sinh: {{ ch.dob }} · {% endif %}Mã HS: {{ ch.code or '—' }}
+  </p>
+  <a href="{{ url_for('student_detail', sid=ch.id) }}" class="btn btn-sm btn-outline">Xem chi tiết học tập</a>
+</div>
+{% else %}
+<div class="empty">Chưa có thông tin học sinh nào được liên kết với tài khoản của bạn.<br>
+  Vui lòng liên hệ trung tâm để được hỗ trợ.</div>
+{% endfor %}
+{% endblock %}

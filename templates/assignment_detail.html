@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>{{ a.title }}</h1></div>
+
+<div class="panel">
+  <p class="muted">Lớp: <strong>{{ a.class_name }}</strong> · Hạn nộp: <strong>{{ a.due_date or 'Không' }}</strong></p>
+  {% if a.description %}<p style="white-space:pre-wrap">{{ a.description }}</p>{% endif %}
+</div>
+
+{# ---------- HỌC SINH: nộp bài ---------- #}
+{% if my_submission is not none or has_role('student') %}
+<div class="panel">
+  <h2>Bài làm của bạn</h2>
+  {% if my_submission and my_submission.status=='graded' %}
+    <div class="alert alert-success">Điểm: <strong>{{ my_submission.score }}</strong>
+      {% if my_submission.feedback %}<br>Nhận xét: {{ my_submission.feedback }}{% endif %}</div>
+  {% elif my_submission %}
+    <div class="alert alert-info">Đã nộp lúc {{ my_submission.submitted_at[:16] }}. Bạn có thể nộp lại bên dưới.</div>
+  {% endif %}
+  <form method="post" action="{{ url_for('submit_assignment', aid=a.id) }}" enctype="multipart/form-data" class="form-grid">
+    <div class="full"><label>Nội dung trả lời</label>
+      <textarea name="content" rows="4">{{ my_submission.content or '' if my_submission else '' }}</textarea></div>
+    <div class="full"><label>Tệp đính kèm (tùy chọn)</label><input type="file" name="file"></div>
+    {% if my_submission and my_submission.file_name %}
+    <div class="full muted">Tệp hiện tại:
+      <a href="{{ url_for('submission_file', filename=my_submission.file_path) }}">{{ my_submission.file_name }}</a></div>
+    {% endif %}
+    <div class="form-actions"><button class="btn btn-primary">Nộp bài</button></div>
+  </form>
+</div>
+{% endif %}
+
+{# ---------- GIÁO VIÊN: danh sách nộp + chấm ---------- #}
+{% if submissions is not none %}
+<div class="panel">
+  <h2>Danh sách nộp bài</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Học sinh</th><th>Trạng thái</th><th>Bài làm</th><th>Điểm & nhận xét</th></tr></thead>
+    <tbody>
+      {% for s in submissions %}
+      <tr>
+        <td><strong>{{ s.full_name }}</strong></td>
+        <td>
+          {% if s.status=='graded' %}<span class="tag tag-green">Đã chấm</span>
+          {% elif s.status=='late' %}<span class="tag tag-orange">Nộp muộn</span>
+          {% elif s.status=='submitted' %}<span class="tag tag-blue">Đã nộp</span>
+          {% else %}<span class="tag tag-gray">Chưa nộp</span>{% endif %}
+        </td>
+        <td>
+          {% if s.content %}<div style="max-width:280px;white-space:pre-wrap">{{ s.content }}</div>{% endif %}
+          {% if s.file_name %}<a href="{{ url_for('submission_file', filename=s.file_path) }}">📎 {{ s.file_name }}</a>{% endif %}
+          {% if not s.content and not s.file_name %}<span class="muted">—</span>{% endif %}
+        </td>
+        <td>
+          {% if can_manage and s.sub_id %}
+          <form method="post" action="{{ url_for('grade_submission', sub_id=s.sub_id) }}" class="form-grid" style="gap:6px;grid-template-columns:1fr">
+            <input type="number" step="0.1" name="score" placeholder="Điểm" value="{{ s.score if s.score is not none else '' }}">
+            <input name="feedback" placeholder="Nhận xét" value="{{ s.feedback or '' }}">
+            <button class="btn btn-sm btn-primary">Lưu điểm</button>
+          </form>
+          {% else %}
+          {{ s.score if s.score is not none else '—' }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

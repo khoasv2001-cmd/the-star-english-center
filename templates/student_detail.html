@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ student.full_name }}</h1>
+  {% if has_role('admin','director','manager','teacher') %}
+  <a href="{{ url_for('student_edit', sid=student.id) }}" class="btn btn-outline">Sửa hồ sơ</a>
+  {% endif %}
+</div>
+
+<div class="cards">
+  <div class="card stat-card"><div class="label">Lớp</div><div class="value" style="font-size:18px">{{ student.class_name or '—' }}</div></div>
+  <div class="card stat-card"><div class="label">Ngày sinh</div><div class="value" style="font-size:18px">{{ student.dob or '—' }}</div></div>
+  <div class="card stat-card"><div class="label">Phụ huynh</div><div class="value" style="font-size:18px">{{ student.parent_name or '—' }}</div>
+    {% if student.parent_phone %}<div class="sub">{{ student.parent_phone }}</div>{% endif %}</div>
+  <div class="card stat-card"><div class="label">Học phí/tháng</div><div class="value" style="font-size:18px">{{ '{:,.0f}'.format(student.monthly_fee or 0) }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Học phí</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Kỳ</th><th>Số tiền</th><th>Đã đóng</th><th>Trạng thái</th></tr></thead>
+    <tbody>
+      {% for t in tuition %}
+      <tr>
+        <td>{{ t.period }}</td><td>{{ '{:,.0f}'.format(t.amount) }}</td><td>{{ '{:,.0f}'.format(t.paid_amount) }}</td>
+        <td>
+          {% if t.status=='paid' %}<span class="tag tag-green">Đã đóng</span>
+          {% elif t.status=='partial' %}<span class="tag tag-orange">Một phần</span>
+          {% else %}<span class="tag tag-red">Chưa đóng</span>{% endif %}
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="4" class="empty">Chưa có dữ liệu học phí.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Điểm danh gần đây</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Ngày</th><th>Trạng thái</th><th>Ghi chú</th></tr></thead>
+    <tbody>
+      {% for a in attendance %}
+      <tr><td>{{ a.date }}</td>
+        <td>
+          {% if a.status=='present' %}<span class="tag tag-green">Có mặt</span>
+          {% elif a.status=='absent' %}<span class="tag tag-red">Vắng</span>
+          {% elif a.status=='late' %}<span class="tag tag-orange">Đi muộn</span>
+          {% else %}<span class="tag tag-blue">Có phép</span>{% endif %}
+        </td><td>{{ a.note or '' }}</td></tr>
+      {% else %}<tr><td colspan="3" class="empty">Chưa có dữ liệu điểm danh.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Bài đã nộp</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Bài tập</th><th>Trạng thái</th><th>Điểm</th></tr></thead>
+    <tbody>
+      {% for s in submissions %}
+      <tr><td>{{ s.title }}</td>
+        <td>{% if s.status=='graded' %}<span class="tag tag-green">Đã chấm</span>
+          {% else %}<span class="tag tag-blue">Đã nộp</span>{% endif %}</td>
+        <td>{{ s.score if s.score is not none else '—' }}</td></tr>
+      {% else %}<tr><td colspan="3" class="empty">Chưa nộp bài nào.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

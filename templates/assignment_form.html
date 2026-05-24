@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Giao bài tập</h1></div>
+<div class="panel" style="max-width:680px">
+  {% if not classes %}
+  <div class="empty">Bạn chưa phụ trách lớp nào để giao bài.</div>
+  {% else %}
+  <form method="post" class="form-grid">
+    <div class="full"><label>Lớp</label>
+      <select name="class_id" required>
+        {% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+      </select></div>
+    <div class="full"><label>Tiêu đề</label><input name="title" required></div>
+    <div class="full"><label>Nội dung / yêu cầu</label><textarea name="description" rows="5"></textarea></div>
+    <div><label>Hạn nộp</label><input type="date" name="due_date"></div>
+    <div class="form-actions"><button class="btn btn-primary">Giao bài</button>
+      <a href="{{ url_for('assignments_list') }}" class="btn">Hủy</a></div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

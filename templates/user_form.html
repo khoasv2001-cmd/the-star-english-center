@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>{{ 'Sửa tài khoản' if user else 'Thêm tài khoản' }}</h1></div>
+<div class="panel" style="max-width:640px">
+  <form method="post" class="form-grid">
+    <div><label>Tên đăng nhập</label>
+      <input name="username" value="{{ user.username if user else '' }}" {{ 'readonly' if user }} required></div>
+    <div><label>{{ 'Mật khẩu mới (để trống nếu không đổi)' if user else 'Mật khẩu' }}</label>
+      <input type="text" name="password" {{ '' if user else 'required' }}></div>
+    <div><label>Họ tên</label><input name="full_name" value="{{ user.full_name or '' if user else '' }}"></div>
+    <div><label>Vai trò</label>
+      <select name="role">
+        {% for key, label in ROLES.items() %}
+        <option value="{{ key }}" {{ 'selected' if user and user.role==key }}>{{ label }}</option>
+        {% endfor %}
+      </select></div>
+    <div><label>Email</label><input name="email" value="{{ user.email or '' if user else '' }}"></div>
+    <div><label>Số điện thoại</label><input name="phone" value="{{ user.phone or '' if user else '' }}"></div>
+    {% if user %}
+    <div class="full"><label><input type="checkbox" name="active" {{ 'checked' if user.active }}> Tài khoản hoạt động</label></div>
+    {% endif %}
+    <div class="form-actions"><button class="btn btn-primary">Lưu</button>
+      <a href="{{ url_for('users_list') }}" class="btn">Hủy</a></div>
+  </form>
+</div>
+{% endblock %}

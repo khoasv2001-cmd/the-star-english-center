@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Trang học sinh</h1></div>
+
+{% if not info %}
+<div class="empty">Tài khoản chưa được liên kết với hồ sơ học sinh.<br>Vui lòng liên hệ trung tâm.</div>
+{% else %}
+<div class="cards">
+  <div class="card stat-card"><div class="label">Họ tên</div><div class="value" style="font-size:20px">{{ info.full_name }}</div></div>
+  <div class="card stat-card"><div class="label">Lớp</div><div class="value" style="font-size:20px">{{ info.class_name or 'Chưa xếp lớp' }}</div></div>
+  <div class="card stat-card"><div class="label">Mã học sinh</div><div class="value" style="font-size:20px">{{ info.code or '—' }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Bài tập gần đây</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Bài tập</th><th>Hạn nộp</th><th>Trạng thái</th><th>Điểm</th><th></th></tr></thead>
+    <tbody>
+      {% for a in assignments %}
+      <tr>
+        <td>{{ a.title }}</td>
+        <td>{{ a.due_date or '—' }}</td>
+        <td>
+          {% if a.sub_status=='graded' %}<span class="tag tag-green">Đã chấm</span>
+          {% elif a.sub_status in ('submitted','late') %}<span class="tag tag-blue">Đã nộp</span>
+          {% else %}<span class="tag tag-gray">Chưa nộp</span>{% endif %}
+        </td>
+        <td>{{ a.score if a.score is not none else '—' }}</td>
+        <td><a href="{{ url_for('assignment_detail', aid=a.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">Chưa có bài tập.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

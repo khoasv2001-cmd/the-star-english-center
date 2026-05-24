@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><h1>Xin chào, {{ current_user.full_name or current_user.username }}</h1></div>
+
+<div class="cards">
+  <div class="card stat-card"><div class="label">Lớp phụ trách</div><div class="value">{{ stats.my_classes }}</div></div>
+  <div class="card stat-card"><div class="label">Học sinh</div><div class="value">{{ stats.my_students }}</div></div>
+  <div class="card stat-card"><div class="label">Bài tập đã giao</div><div class="value">{{ stats.assignments }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Lớp của tôi</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Lớp</th><th>Trình độ</th><th>Lịch học</th><th>Phòng</th><th></th></tr></thead>
+    <tbody>
+      {% for c in stats.classes %}
+      <tr>
+        <td><strong>{{ c.name }}</strong></td>
+        <td>{{ c.level or '—' }}</td>
+        <td>{{ c.schedule or '—' }}</td>
+        <td>{{ c.room or '—' }}</td>
+        <td><a href="{{ url_for('class_detail', cid=c.id) }}" class="btn btn-sm btn-outline">Xem lớp</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">Bạn chưa được phân lớp nào.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

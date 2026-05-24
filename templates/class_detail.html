@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Lớp {{ cls.name }}</h1>
+  <div class="row-flex">
+    {% if can_manage %}<a href="{{ url_for('class_edit', cid=cls.id) }}" class="btn btn-outline">Sửa lớp</a>{% endif %}
+    {% if has_role('admin','director','manager','teacher') %}
+    <a href="{{ url_for('attendance_view', class_id=cls.id) }}" class="btn btn-outline">Điểm danh</a>{% endif %}
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card stat-card"><div class="label">Trình độ</div><div class="value" style="font-size:18px">{{ cls.level or '—' }}</div></div>
+  <div class="card stat-card"><div class="label">Giáo viên</div><div class="value" style="font-size:18px">{{ cls.teacher_name or '—' }}</div></div>
+  <div class="card stat-card"><div class="label">Lịch học</div><div class="value" style="font-size:18px">{{ cls.schedule or '—' }}</div></div>
+  <div class="card stat-card"><div class="label">Phòng</div><div class="value" style="font-size:18px">{{ cls.room or '—' }}</div></div>
+</div>
+
+<div class="panel">
+  <h2>Học sinh ({{ students|length }})</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Họ tên</th><th>Mã HS</th><th>Ngày sinh</th><th>SĐT</th><th></th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td><strong>{{ s.full_name }}</strong></td><td>{{ s.code or '—' }}</td>
+        <td>{{ s.dob or '—' }}</td><td>{{ s.phone or '—' }}</td>
+        <td><a href="{{ url_for('student_detail', sid=s.id) }}" class="btn btn-sm btn-outline">Xem</a></td>
+      </tr>
+      {% else %}<tr><td colspan="5" class="empty">Lớp chưa có học sinh.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="row-flex" style="justify-content:space-between">
+    <h2 style="margin:0">Bài tập</h2>
+    {% if can_manage %}<a href="{{ url_for('assignment_create') }}" class="btn btn-sm btn-primary">+ Giao bài</a>{% endif %}
+  </div>
+  <div class="table-wrap" style="margin-top:12px">
+  <table>
+    <thead><tr><th>Tiêu đề</th><th>Hạn nộp</th><th></th></tr></thead>
+    <tbody>
+      {% for a in assignments %}
+      <tr><td>{{ a.title }}</td><td>{{ a.due_date or '—' }}</td>
+        <td><a href="{{ url_for('assignment_detail', aid=a.id) }}" class="btn btn-sm btn-outline">Xem</a></td></tr>
+      {% else %}<tr><td colspan="3" class="empty">Chưa có bài tập.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

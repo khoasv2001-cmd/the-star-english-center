@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Học phí</h1>
+  {% if can_manage %}<a href="{{ url_for('tuition_create') }}" class="btn btn-primary">+ Tạo phiếu học phí</a>{% endif %}
+</div>
+
+<div class="toolbar">
+  <form method="get" class="row-flex">
+    <input type="month" name="period" value="{{ period }}" onchange="this.form.submit()">
+    {% if period %}<a href="{{ url_for('tuition_list') }}" class="btn btn-sm">Xóa lọc</a>{% endif %}
+  </form>
+</div>
+
+<div class="panel">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Học sinh</th><th>Lớp</th><th>Kỳ</th><th>Số tiền</th><th>Đã đóng</th><th>Trạng thái</th>
+      {% if can_manage %}<th>Thu tiền</th>{% endif %}</tr></thead>
+    <tbody>
+      {% for t in rows %}
+      <tr>
+        <td><strong>{{ t.full_name }}</strong></td>
+        <td>{{ t.class_name or '—' }}</td>
+        <td>{{ t.period }}</td>
+        <td>{{ '{:,.0f}'.format(t.amount) }}</td>
+        <td>{{ '{:,.0f}'.format(t.paid_amount) }}</td>
+        <td>
+          {% if t.status=='paid' %}<span class="tag tag-green">Đã đóng</span>
+          {% elif t.status=='partial' %}<span class="tag tag-orange">Một phần</span>
+          {% else %}<span class="tag tag-red">Chưa đóng</span>{% endif %}
+        </td>
+        {% if can_manage %}
+        <td>
+          {% if t.status!='paid' %}
+          <form method="post" action="{{ url_for('tuition_pay', tid=t.id) }}" class="inline-form">
+            <input type="number" name="paid_amount" placeholder="Số tiền" required>
+            <button class="btn btn-sm btn-primary">Thu</button>
+          </form>
+          {% else %}<span class="muted">—</span>{% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}<tr><td colspan="7" class="empty">Chưa có dữ liệu học phí.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}
