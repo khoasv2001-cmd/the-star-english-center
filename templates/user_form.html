@@ -2,7 +2,14 @@
 {% block content %}
 <div class="page-head"><h1>{{ 'Sửa tài khoản' if user else 'Thêm tài khoản' }}</h1></div>
 <div class="panel" style="max-width:640px">
-  <form method="post" class="form-grid">
+  <form method="post" class="form-grid" enctype="multipart/form-data">
+    <div class="full" style="text-align:center">
+      <img id="avatarPreview" class="avatar avatar-lg"
+        src="{{ url_for('avatar_file', filename=user.avatar) if user and user.avatar else url_for('static', filename='logo.png') }}"
+        alt="avatar">
+      <div><label style="display:inline-block;margin-top:8px">Ảnh đại diện (hình tròn)</label></div>
+      <input type="file" name="avatar" accept="image/*" onchange="previewAvatar(this)" style="max-width:280px;margin:0 auto">
+    </div>
     <div><label>Tên đăng nhập</label>
       <input name="username" value="{{ user.username if user else '' }}" {{ 'readonly' if user }} required></div>
     <div><label>{{ 'Mật khẩu mới (để trống nếu không đổi)' if user else 'Mật khẩu' }}</label>
@@ -27,4 +34,13 @@
       <a href="{{ url_for('users_list') }}" class="btn">Hủy</a></div>
   </form>
 </div>
+<script>
+function previewAvatar(input){
+  if(input.files && input.files[0]){
+    var r = new FileReader();
+    r.onload = function(e){ document.getElementById('avatarPreview').src = e.target.result; };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+</script>
 {% endblock %}

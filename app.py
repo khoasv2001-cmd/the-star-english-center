@@ -25,10 +25,13 @@ UPLOAD_DIR = os.path.join(DATA_DIR, 'uploads')
 SUBMISSION_DIR = os.path.join(UPLOAD_DIR, 'submissions')
 DOC_DIR = os.path.join(UPLOAD_DIR, 'documents')
 ASSIGNMENT_FILE_DIR = os.path.join(UPLOAD_DIR, 'assignments')
+AVATAR_DIR = os.path.join(UPLOAD_DIR, 'avatars')
 DB_PATH = os.path.join(DATA_DIR, 'data.db')
 
-for d in (DATA_DIR, UPLOAD_DIR, SUBMISSION_DIR, DOC_DIR, ASSIGNMENT_FILE_DIR):
+for d in (DATA_DIR, UPLOAD_DIR, SUBMISSION_DIR, DOC_DIR, ASSIGNMENT_FILE_DIR, AVATAR_DIR):
     os.makedirs(d, exist_ok=True)
+
+IMAGE_EXT = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 ALLOWED_EXT = {'pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'zip', 'rar', 'txt', 'mp3', 'mp4'}
 MAX_UPLOAD_MB = 50
@@ -343,6 +346,11 @@ def init_db():
     # Các phiếu cũ (đã tồn tại trước khi có tính năng duyệt) coi như đã được duyệt
     if 'approved' not in existing_cols:
         conn.execute('UPDATE tuition SET approved=1')
+
+    # Migration: thêm cột avatar (ảnh đại diện) cho người dùng
+    user_cols = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
+    if 'avatar' not in user_cols:
+        conn.execute('ALTER TABLE users ADD COLUMN avatar TEXT')
     conn.commit()
 
     # Tạo tài khoản admin mặc định nếu chưa có user nào
@@ -367,6 +375,7 @@ class User(UserMixin):
         self.phone = row['phone']
         self.role = row['role']
         self.active = row['active']
+        self.avatar = row['avatar'] if 'avatar' in row.keys() else None
 
     @property
     def role_label(self):
@@ -483,6 +492,19 @@ def visible_student_ids():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
+
+
+def save_avatar(file_storage):
+    """Lưu ảnh đại diện, trả về tên file đã lưu (hoặc None nếu không hợp lệ)."""
+    if not file_storage or not file_storage.filename:
+        return None
+    ext = file_storage.filename.rsplit('.', 1)[-1].lower() if '.' in file_storage.filename else ''
+    if ext not in IMAGE_EXT:
+        return None
+    fname = secure_filename(file_storage.filename)
+    stored = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{fname}"
+    file_storage.save(os.path.join(AVATAR_DIR, stored))
+    return stored
 
 
 def recalc_tuition_status(row_amount, paid):
@@ -713,9 +735,13 @@ def dashboard():
 
     if role == 'parent':
         children = db.execute('''
-            SELECT s.*, c.name class_name FROM students s
+            SELECT s.*, c.name class_name, t.full_name teacher_name,
+              COALESCE((SELECT SUM(amount) FROM tuition tu WHERE tu.student_id=s.id AND tu.approved=1),0) tuition_billed,
+              COALESCE((SELECT SUM(paid_amount) FROM tuition tu WHERE tu.student_id=s.id AND tu.approved=1),0) tuition_paid
+            FROM students s
             JOIN student_parents sp ON sp.student_id=s.id
             LEFT JOIN classes c ON c.id=s.class_id
+            LEFT JOIN users t ON t.id=c.teacher_id
             WHERE sp.parent_id=? ORDER BY s.full_name''', (current_user.id,)).fetchall()
         return render_template('dashboard_parent.html', children=children)
 
@@ -779,10 +805,11 @@ def user_create():
         elif db.execute('SELECT 1 FROM users WHERE username=?', (username,)).fetchone():
             flash('Tên đăng nhập đã tồn tại.', 'danger')
         else:
-            db.execute('''INSERT INTO users (username, password_hash, full_name, email, phone, role, created_at)
-                VALUES (?,?,?,?,?,?,?)''',
+            avatar = save_avatar(request.files.get('avatar'))
+            db.execute('''INSERT INTO users (username, password_hash, full_name, email, phone, role, avatar, created_at)
+                VALUES (?,?,?,?,?,?,?,?)''',
                 (username, generate_password_hash(password), request.form.get('full_name'),
-                 request.form.get('email'), request.form.get('phone'), role, datetime.now().isoformat()))
+                 request.form.get('email'), request.form.get('phone'), role, avatar, datetime.now().isoformat()))
             db.commit()
             flash('Đã tạo tài khoản.', 'success')
             return redirect(url_for('users_list'))
@@ -803,6 +830,9 @@ def user_edit(uid):
         new_pw = request.form.get('password', '')
         if new_pw:
             db.execute('UPDATE users SET password_hash=? WHERE id=?', (generate_password_hash(new_pw), uid))
+        avatar = save_avatar(request.files.get('avatar'))
+        if avatar:
+            db.execute('UPDATE users SET avatar=? WHERE id=?', (avatar, uid))
         db.commit()
         flash('Đã cập nhật tài khoản.', 'success')
         return redirect(url_for('users_list'))
@@ -1077,8 +1107,11 @@ def student_detail(sid):
         abort(403)
     if sid not in visible_student_ids():
         abort(403)
-    student = db.execute('''SELECT s.*, c.name class_name, p.full_name parent_name, p.phone parent_phone
+    student = db.execute('''SELECT s.*, c.name class_name, c.schedule class_schedule,
+        t.full_name teacher_name, t.phone teacher_phone,
+        p.full_name parent_name, p.phone parent_phone
         FROM students s LEFT JOIN classes c ON c.id=s.class_id
+        LEFT JOIN users t ON t.id=c.teacher_id
         LEFT JOIN users p ON p.id=s.parent_id WHERE s.id=?''', (sid,)).fetchone()
     if not student:
         abort(404)
@@ -1195,6 +1228,13 @@ def submit_assignment(aid):
     a = db.execute('SELECT * FROM assignments WHERE id=?', (aid,)).fetchone()
     if not a or a['class_id'] != srow['class_id']:
         abort(403)
+    # Đã được giáo viên chấm thì không cho nộp bổ sung nữa
+    graded = db.execute(
+        "SELECT 1 FROM submissions WHERE assignment_id=? AND student_id=? AND status='graded'",
+        (aid, srow['id'])).fetchone()
+    if graded:
+        flash('Bài đã được giáo viên chấm điểm, không thể nộp bổ sung.', 'danger')
+        return redirect(url_for('assignment_detail', aid=aid))
     content = request.form.get('content', '')
     file_path = file_name = None
     f = request.files.get('file')
@@ -1256,6 +1296,12 @@ def assignment_file_download(filename):
     if not a or not can_view_class(a['class_id']):
         abort(403)
     return send_from_directory(ASSIGNMENT_FILE_DIR, filename, as_attachment=True)
+
+
+@app.route('/avatar/<path:filename>')
+@login_required
+def avatar_file(filename):
+    return send_from_directory(AVATAR_DIR, filename)
 
 
 # ============================================================

@@ -30,19 +30,25 @@
   {% if my_submission and my_submission.status=='graded' %}
     <div class="alert alert-success">Điểm: <strong>{{ my_submission.score }}</strong>
       {% if my_submission.feedback %}<br>Nhận xét: {{ my_submission.feedback }}{% endif %}</div>
-  {% elif my_submission %}
+    {% if my_submission.content %}<p style="white-space:pre-wrap"><strong>Bài làm đã nộp:</strong><br>{{ my_submission.content }}</p>{% endif %}
+    {% if my_submission.file_name %}<p>Tệp đã nộp:
+      <a href="{{ url_for('submission_file', filename=my_submission.file_path) }}">📎 {{ my_submission.file_name }}</a></p>{% endif %}
+    <div class="alert alert-warning">Bài đã được giáo viên chấm điểm nên không thể nộp bổ sung.</div>
+  {% else %}
+    {% if my_submission %}
     <div class="alert alert-info">Đã nộp lúc {{ my_submission.submitted_at[:16] }}. Bạn có thể nộp lại bên dưới.</div>
-  {% endif %}
-  <form method="post" action="{{ url_for('submit_assignment', aid=a.id) }}" enctype="multipart/form-data" class="form-grid">
-    <div class="full"><label>Nội dung trả lời</label>
-      <textarea name="content" rows="4">{{ my_submission.content or '' if my_submission else '' }}</textarea></div>
-    <div class="full"><label>Tệp đính kèm (tùy chọn)</label><input type="file" name="file"></div>
-    {% if my_submission and my_submission.file_name %}
-    <div class="full muted">Tệp hiện tại:
-      <a href="{{ url_for('submission_file', filename=my_submission.file_path) }}">{{ my_submission.file_name }}</a></div>
     {% endif %}
-    <div class="form-actions"><button class="btn btn-primary">Nộp bài</button></div>
-  </form>
+    <form method="post" action="{{ url_for('submit_assignment', aid=a.id) }}" enctype="multipart/form-data" class="form-grid">
+      <div class="full"><label>Nội dung trả lời</label>
+        <textarea name="content" rows="4">{{ my_submission.content or '' if my_submission else '' }}</textarea></div>
+      <div class="full"><label>Tệp đính kèm (tùy chọn)</label><input type="file" name="file"></div>
+      {% if my_submission and my_submission.file_name %}
+      <div class="full muted">Tệp hiện tại:
+        <a href="{{ url_for('submission_file', filename=my_submission.file_path) }}">{{ my_submission.file_name }}</a></div>
+      {% endif %}
+      <div class="form-actions"><button class="btn btn-primary">Nộp bài</button></div>
+    </form>
+  {% endif %}
 </div>
 {% endif %}
 

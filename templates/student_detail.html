@@ -8,7 +8,11 @@
 </div>
 
 <div class="cards">
-  <div class="card stat-card"><div class="label">Lớp</div><div class="value" style="font-size:18px">{{ student.class_name or '—' }}</div></div>
+  <div class="card stat-card"><div class="label">Lớp</div><div class="value" style="font-size:18px">{{ student.class_name or '—' }}</div>
+    {% if student.class_schedule %}<div class="sub">{{ student.class_schedule }}</div>{% endif %}</div>
+  <div class="card stat-card"><div class="label">Giáo viên đang dạy</div>
+    <div class="value" style="font-size:18px">{{ student.teacher_name or 'Chưa phân công' }}</div>
+    {% if student.teacher_phone %}<div class="sub">{{ student.teacher_phone }}</div>{% endif %}</div>
   <div class="card stat-card"><div class="label">Ngày sinh</div><div class="value" style="font-size:18px">{{ student.dob or '—' }}</div></div>
   <div class="card stat-card"><div class="label">Phụ huynh</div>
     {% if parents %}
@@ -65,14 +69,20 @@
   <h2>Bài đã nộp</h2>
   <div class="table-wrap">
   <table>
-    <thead><tr><th>Bài tập</th><th>Trạng thái</th><th>Điểm</th></tr></thead>
+    <thead><tr><th>Bài tập</th><th>Trạng thái</th><th>Bài làm</th><th>Điểm</th><th>Nhận xét</th></tr></thead>
     <tbody>
       {% for s in submissions %}
       <tr><td>{{ s.title }}</td>
         <td>{% if s.status=='graded' %}<span class="tag tag-green">Đã chấm</span>
           {% else %}<span class="tag tag-blue">Đã nộp</span>{% endif %}</td>
-        <td>{{ s.score if s.score is not none else '—' }}</td></tr>
-      {% else %}<tr><td colspan="3" class="empty">Chưa nộp bài nào.</td></tr>{% endfor %}
+        <td>
+          {% if s.content %}<div style="max-width:240px;white-space:pre-wrap">{{ s.content }}</div>{% endif %}
+          {% if s.file_name %}<a href="{{ url_for('submission_file', filename=s.file_path) }}">📎 {{ s.file_name }}</a>{% endif %}
+          {% if not s.content and not s.file_name %}<span class="muted">—</span>{% endif %}
+        </td>
+        <td>{{ s.score if s.score is not none else '—' }}</td>
+        <td>{{ s.feedback or '—' }}</td></tr>
+      {% else %}<tr><td colspan="5" class="empty">Chưa nộp bài nào.</td></tr>{% endfor %}
     </tbody>
   </table>
   </div>

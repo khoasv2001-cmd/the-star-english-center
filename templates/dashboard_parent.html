@@ -3,6 +3,7 @@
 <div class="page-head"><h1>Con của tôi</h1></div>
 
 {% for ch in children %}
+{% set remain = ch.tuition_billed - ch.tuition_paid %}
 <div class="panel">
   <div class="row-flex" style="justify-content:space-between">
     <h2 style="margin:0">{{ ch.full_name }}</h2>
@@ -10,8 +11,17 @@
   </div>
   <p class="muted" style="margin:8px 0 14px">
     {% if ch.dob %}Ngày sinh: {{ ch.dob }} · {% endif %}Mã HS: {{ ch.code or '—' }}
+    {% if ch.teacher_name %} · Giáo viên: {{ ch.teacher_name }}{% endif %}
   </p>
-  <a href="{{ url_for('student_detail', sid=ch.id) }}" class="btn btn-sm btn-outline">Xem chi tiết học tập</a>
+  <div class="cards" style="margin-bottom:14px">
+    <div class="card stat-card"><div class="label">Học phí đã nộp</div>
+      <div class="value" style="font-size:20px;color:var(--green-dark)">{{ '{:,.0f}'.format(ch.tuition_paid) }} đ</div></div>
+    <div class="card stat-card"><div class="label">Học phí chưa nộp</div>
+      <div class="value" style="font-size:20px;color:{{ '#dc2626' if remain > 0 else 'var(--green-dark)' }}">{{ '{:,.0f}'.format(remain) }} đ</div></div>
+    <div class="card stat-card"><div class="label">Tổng học phí</div>
+      <div class="value" style="font-size:20px">{{ '{:,.0f}'.format(ch.tuition_billed) }} đ</div></div>
+  </div>
+  <a href="{{ url_for('student_detail', sid=ch.id) }}" class="btn btn-sm btn-outline">Xem chi tiết học tập &amp; bài đã nộp</a>
 </div>
 {% else %}
 <div class="empty">Chưa có thông tin học sinh nào được liên kết với tài khoản của bạn.<br>

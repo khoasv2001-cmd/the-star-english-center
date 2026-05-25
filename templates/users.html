@@ -19,10 +19,14 @@
 <div class="panel">
   <div class="table-wrap">
   <table>
-    <thead><tr><th>Họ tên</th><th>Đăng nhập</th><th>Vai trò</th><th>Email / SĐT</th><th>Trạng thái</th><th></th></tr></thead>
+    <thead><tr><th></th><th>Họ tên</th><th>Đăng nhập</th><th>Vai trò</th><th>Email / SĐT</th><th>Trạng thái</th><th></th></tr></thead>
     <tbody>
       {% for u in users %}
       <tr>
+        <td>
+          {% if u.avatar %}<img class="avatar" src="{{ url_for('avatar_file', filename=u.avatar) }}" alt="">
+          {% else %}<span class="avatar avatar-initial">{{ (u.full_name or u.username)[0]|upper }}</span>{% endif %}
+        </td>
         <td><strong>{{ u.full_name or '—' }}</strong></td>
         <td>{{ u.username }}</td>
         <td><span class="role-badge role-{{ u.role }}">{{ ROLES.get(u.role, u.role) }}</span></td>
@@ -31,7 +35,7 @@
         <td><a href="{{ url_for('user_edit', uid=u.id) }}" class="btn btn-sm btn-outline">Sửa</a></td>
       </tr>
       {% else %}
-      <tr><td colspan="6" class="empty">Chưa có tài khoản.</td></tr>
+      <tr><td colspan="7" class="empty">Chưa có tài khoản.</td></tr>
       {% endfor %}
     </tbody>
   </table>

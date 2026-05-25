@@ -38,8 +38,8 @@ img{max-width:100%}
 .sidebar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55;
   opacity:0;visibility:hidden;transition:.22s}
 .sidebar-backdrop.show{opacity:1;visibility:visible}
-.brand{padding:18px 16px;text-align:center;background:rgba(255,255,255,.95)}
-.brand img{max-height:60px}
+.brand{padding:20px 16px 14px;text-align:center}
+.brand img{max-height:104px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
 .menu{padding:12px 10px;display:flex;flex-direction:column;gap:3px}
 .menu a{color:#eafff0;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:500;
   display:flex;align-items:center;gap:10px;transition:.15s}
@@ -52,7 +52,15 @@ img{max-width:100%}
 .topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;
   padding:0 20px;gap:12px;position:sticky;top:0;z-index:20}
 .hamburger{display:block;background:none;border:none;font-size:24px;cursor:pointer;line-height:1}
+.topbar-logo{display:flex;align-items:center}
+.topbar-logo img{height:40px;width:auto}
 .spacer{flex:1}
+
+/* ===== Ảnh đại diện (avatar) hình tròn ===== */
+.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--green-light);background:#fff;flex-shrink:0}
+.avatar-initial{display:inline-flex;align-items:center;justify-content:center;font-weight:800;
+  color:var(--green-dark);background:var(--green-light);font-size:15px}
+.avatar-lg{width:110px;height:110px;border:3px solid var(--green-light);font-size:40px}
 .user-box{display:flex;align-items:center;gap:10px;position:relative}
 .uname{font-weight:600;font-size:14px}
 .role-badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;background:var(--green-light);color:var(--green-dark)}
