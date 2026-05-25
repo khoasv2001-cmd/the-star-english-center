@@ -94,8 +94,8 @@
         <span class="avatar avatar-initial">{{ (current_user.full_name or current_user.username)[0]|upper }}</span>
         {% endif %}
         <span class="uname">{{ current_user.full_name or current_user.username }}</span>
-        <div class="dropdown">
-          <button>▾</button>
+        <div class="dropdown" id="userDropdown">
+          <button type="button" onclick="toggleUserMenu(event)" aria-label="Tài khoản">▾</button>
           <div class="dropdown-menu">
             <a href="{{ url_for('change_password') }}">Đổi mật khẩu</a>
             <a href="{{ url_for('logout') }}">Đăng xuất</a>
@@ -131,7 +131,22 @@
     a.addEventListener('click', closeSidebar);
   });
   // Nhấn phím Esc cũng đóng menu
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeSidebar(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeSidebar(); closeUserMenu(); } });
+
+  // Menu tài khoản: bấm để mở, giữ nguyên cho tới khi bấm ra ngoài
+  function toggleUserMenu(e){
+    e.stopPropagation();
+    document.getElementById('userDropdown').classList.toggle('open');
+  }
+  function closeUserMenu(){
+    var d = document.getElementById('userDropdown');
+    if(d) d.classList.remove('open');
+  }
+  // Bấm ra ngoài thì đóng menu tài khoản
+  document.addEventListener('click', function(e){
+    var d = document.getElementById('userDropdown');
+    if(d && !d.contains(e.target)) closeUserMenu();
+  });
 </script>
 </body>
 </html>
