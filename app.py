@@ -412,7 +412,8 @@ def inject_globals():
         ATTENDANCE_LABELS=ATTENDANCE_LABELS, TUITION_LABELS=TUITION_LABELS,
         has_role=has_role, today=date.today().isoformat(), WEEKDAYS=WEEKDAYS,
         ZALO_URL=ZALO_URL, FANPAGE_URL=FANPAGE_URL,
-        CENTER_NAME=CENTER_NAME, CENTER_SLOGAN=CENTER_SLOGAN
+        CENTER_NAME=CENTER_NAME, CENTER_SLOGAN=CENTER_SLOGAN,
+        assignable_roles=(roles_user_can_assign() if current_user.is_authenticated else [])
     )
 
 
@@ -768,37 +769,61 @@ def dashboard():
 MANAGER_CREATABLE_ROLES = ('student', 'parent')
 
 
+def roles_user_can_assign():
+    """Danh sách vai trò mà người dùng hiện tại được phép gán cho tài khoản khác."""
+    if has_role('admin'):
+        return list(ROLES.keys())                       # admin: mọi vai trò
+    if has_role('director'):
+        return [r for r in ROLES.keys() if r != 'admin']  # giám đốc: tất cả trừ admin
+    if has_role('manager'):
+        return list(MANAGER_CREATABLE_ROLES)            # quản lý: học sinh / phụ huynh
+    return []
+
+
+def can_manage_user(target_role):
+    """Người dùng hiện tại có quyền tạo/sửa tài khoản có vai trò target_role không."""
+    if has_role('admin'):
+        return True
+    if has_role('director'):
+        return target_role != 'admin'                   # giám đốc quản trị tất cả trừ admin
+    if has_role('manager'):
+        return target_role in MANAGER_CREATABLE_ROLES
+    return False
+
+
 @app.route('/nguoi-dung')
-@roles_required('admin', 'manager')
+@roles_required('admin', 'director', 'manager')
 def users_list():
     db = get_db()
     role_filter = request.args.get('role', '')
-    # Quản lý lớp chỉ thấy tài khoản học sinh & phụ huynh
-    if has_role('manager'):
-        if role_filter not in MANAGER_CREATABLE_ROLES:
+    allowed = roles_user_can_assign()
+    # Admin xem được cả tài khoản admin; giám đốc/quản lý chỉ xem vai trò mình quản lý
+    if has_role('admin'):
+        if role_filter:
+            rows = db.execute('SELECT * FROM users WHERE role=? ORDER BY full_name', (role_filter,)).fetchall()
+        else:
+            rows = db.execute('SELECT * FROM users ORDER BY role, full_name').fetchall()
+    else:
+        if role_filter and role_filter not in allowed:
             role_filter = ''
         if role_filter:
             rows = db.execute('SELECT * FROM users WHERE role=? ORDER BY full_name', (role_filter,)).fetchall()
         else:
+            ph = ','.join('?' * len(allowed))
             rows = db.execute(
-                "SELECT * FROM users WHERE role IN ('student','parent') ORDER BY role, full_name").fetchall()
-    elif role_filter:
-        rows = db.execute('SELECT * FROM users WHERE role=? ORDER BY full_name', (role_filter,)).fetchall()
-    else:
-        rows = db.execute('SELECT * FROM users ORDER BY role, full_name').fetchall()
+                'SELECT * FROM users WHERE role IN (%s) ORDER BY role, full_name' % ph, allowed).fetchall()
     return render_template('users.html', users=rows, role_filter=role_filter)
 
 
 @app.route('/nguoi-dung/them', methods=['GET', 'POST'])
-@roles_required('admin', 'manager')
+@roles_required('admin', 'director', 'manager')
 def user_create():
     db = get_db()
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         role = request.form.get('role', 'student')
-        # Quản lý lớp chỉ được tạo tài khoản học sinh / phụ huynh
-        if has_role('manager') and role not in MANAGER_CREATABLE_ROLES:
+        if not can_manage_user(role):
             abort(403)
         if not username or not password:
             flash('Cần nhập tên đăng nhập và mật khẩu.', 'danger')
@@ -817,16 +842,23 @@ def user_create():
 
 
 @app.route('/nguoi-dung/<int:uid>/sua', methods=['GET', 'POST'])
-@roles_required('admin')
+@roles_required('admin', 'director', 'manager')
 def user_edit(uid):
     db = get_db()
     row = db.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
     if not row:
         abort(404)
+    # Không được sửa tài khoản có vai trò ngoài quyền hạn (vd giám đốc không sửa admin)
+    if not can_manage_user(row['role']):
+        abort(403)
     if request.method == 'POST':
+        # Vai trò mới phải nằm trong quyền được gán; nếu không thì giữ nguyên vai trò cũ
+        new_role = request.form.get('role')
+        if new_role not in roles_user_can_assign():
+            new_role = row['role']
         db.execute('''UPDATE users SET full_name=?, email=?, phone=?, role=?, active=? WHERE id=?''',
                    (request.form.get('full_name'), request.form.get('email'), request.form.get('phone'),
-                    request.form.get('role'), 1 if request.form.get('active') else 0, uid))
+                    new_role, 1 if request.form.get('active') else 0, uid))
         new_pw = request.form.get('password', '')
         if new_pw:
             db.execute('UPDATE users SET password_hash=? WHERE id=?', (generate_password_hash(new_pw), uid))

@@ -63,7 +63,7 @@
       <a href="{{ url_for('quiz_game') }}" class="{{ 'active' if request.endpoint=='quiz_game' }}">
         <span class="ico">🎮</span> Trò chơi tiếng Anh</a>
 
-      {% if has_role('admin','manager') %}
+      {% if has_role('admin','director','manager') %}
       <div class="menu-sep">Quản trị</div>
       <a href="{{ url_for('users_list') }}" class="{{ 'active' if 'user' in request.endpoint }}">
         <span class="ico">👤</span> {{ 'Tài khoản HS/PH' if has_role('manager') else 'Người dùng' }}</a>

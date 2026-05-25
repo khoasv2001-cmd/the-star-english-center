@@ -18,12 +18,13 @@
     <div><label>Vai trò</label>
       <select name="role">
         {% for key, label in ROLES.items() %}
-        {% if not has_role('manager') or key in ('student','parent') %}
+        {% if key in assignable_roles %}
         <option value="{{ key }}" {{ 'selected' if user and user.role==key }}>{{ label }}</option>
         {% endif %}
         {% endfor %}
       </select>
-      {% if has_role('manager') %}<small class="muted">Quản lý lớp chỉ tạo được tài khoản Học sinh và Phụ huynh.</small>{% endif %}
+      {% if has_role('manager') %}<small class="muted">Quản lý lớp chỉ tạo được tài khoản Học sinh và Phụ huynh.</small>
+      {% elif has_role('director') %}<small class="muted">Giám đốc quản trị được mọi tài khoản trừ Admin.</small>{% endif %}
     </div>
     <div><label>Email</label><input name="email" value="{{ user.email or '' if user else '' }}"></div>
     <div><label>Số điện thoại</label><input name="phone" value="{{ user.phone or '' if user else '' }}"></div>
